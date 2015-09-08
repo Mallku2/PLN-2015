@@ -1,7 +1,9 @@
 # https://docs.python.org/3/library/unittest.html
-from unittest import TestCase
+# TODO: le tuve que agregar la importacion de main, y el codigo del final
+from unittest import TestCase, main
 
-from languagemodeling.ngram import NGram
+#from languagemodeling.ngram import NGram
+from ngram import NGram
 
 
 class TestNGram(TestCase):
@@ -26,7 +28,8 @@ class TestNGram(TestCase):
             ('gata',): 1,
             ('salmón',): 1,
         }
-
+        print("ngram.counts:")
+        print(dict(ngram.counts))
         self.assertEqual(dict(ngram.counts), counts)
 
     def test_init_2gram(self):
@@ -64,3 +67,7 @@ class TestNGram(TestCase):
 
         self.assertEqual(ngram.prob('pescado', ['come']), 0.5)
         self.assertEqual(ngram.prob('salmón', ['come']), 0.5)
+        
+if __name__ == '__main__':
+    main()
+
