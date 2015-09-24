@@ -9,7 +9,8 @@ Options:
   -m <model>    Model to use [default: ngram]:
                   ngram: Unsmoothed n-grams.
                   addone: N-grams with add-one smoothing.
-                  interpolated: N-grams with linear interpolation smoothing.
+                  interpolation: N-grams with linear interpolation smoothing.
+                  backoff: N-grams with Back-Off with discounting smoothing.
   -o <file>     Output model file.
   -h --help     Show this screen.
 """
@@ -18,52 +19,38 @@ from docopt import docopt
 import pickle
 
 from nltk.corpus.reader import PlaintextCorpusReader
-from nltk.tokenize import RegexpTokenizer
 
 # TODO: solucion temporal...
 import sys
 sys.path = sys.path + ["../../"]
 
-from languagemodeling.ngram import NGram,AddOneNGram, InterpolatedNGram
-
+from languagemodeling.ngram import NGram, AddOneNGram, InterpolatedNGram, \
+    BackOffNGram
+from corpus_clarke import corpus_clarke_tokenizer, corpus_clarke_name
 
 if __name__ == '__main__':
     opts = docopt(__doc__)
-    # Define a tokenizer suited for our corpus.
-    # TODO: con este patron resolvemos la tokenizacion errada de nombres como
-    # Moon-Watcher. También ayudamos a tokenizar bien el nombre Arthur C. Clarke.
-    # ¿Es necesario hacer lo mismo con otros nombres?
-    pattern = r'''(?ix)    # set flag to allow verbose regexps
-                  (Arthur\sC\.\sClarke)
-                | ([A-Z]\.)+        # abbreviations, e.g. U.S.A.
-                | \w+(-\w+)*        # words with optional internal hyphens
-                | \$?\d+(\.\d+)?%?  # currency and percentages, e.g. $12.40, 82%
-                | \.\.\.            # ellipsis
-                | [][.,;"'?():-_`]  # these are separate tokens; includes ], [
-                '''
-    tokenizer = RegexpTokenizer(pattern)
 
     # load the data
-    # TODO: para entrenar nuestro modelo sobre el corpus de entrenamiento,
-    # estoy teniendo que cambiar aqui el nombre del archivo con el corpus.
-    sents = PlaintextCorpusReader("./", "Corpus Clarke Training", word_tokenizer=tokenizer).sents()
-    
+    sents = PlaintextCorpusReader("./", corpus_clarke_name,
+                                  word_tokenizer=corpus_clarke_tokenizer).\
+        sents()
     # train the model
     n = int(opts['-n'])
     m = str(opts['-m'])
     model = None
-    
+
     if m == "addone":
         model = AddOneNGram(n, sents)
     elif m == "ngram":
         model = NGram(n, sents)
-    elif m == "interpolated":
-        # TODO: agregar los restantes comandos para aceptar un valor de gamma
-        # y la bandera addone
+    elif m == "interpolation":
         model = InterpolatedNGram(n, sents, gamma=None, addone=True)
+    elif m == "backoff":
+        model = BackOffNGram(n, sents, beta=None, addone=True)
     else:
         print(__doc__)
-    
+
     if model:
         # save it
         filename = opts['-o']
