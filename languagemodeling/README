@@ -1,0 +1,130 @@
+* Ejercicio 1: Corpus
+
+    Para el entrenamiento de los diferentes modelos de lenguaje, se utilizó un
+corpus compuesto por los 4 libros de la saga "Odisea del espacio", de Arthur C.
+Clarke, y los 4 libros de la saga "Cita con Rama", del mismo autor.
+    Para la definición del tokenizador utilizado, se trabajó sobre el ejemplo
+dado en clase, el cual se extendió para tratar la ocurrencia de algunos
+nombres propios dentro del texto, que aparecen de manera recurrente. Se utilizó
+un PlaintextCorpusReader, al que se le proveyó el tokenizador descrito.
+    Todos los datos, referidos al corpus, que son necesarios para manipularlos
+(string con nombre del corpus de entrenamiento y test, tokenizador), se definieron
+en el módulo "corpus_clarke.py", dentro de la carpeta "scripts".
+
+* Ejercicio 2: Modelo de n-gramas.
+    
+    Se implementó un modelo de n-gramas, siguiendo la interfaz de clase indicada.
+Solamente se la extendió para incluir métodos de cálculo de "perplexity", 
+útiles para el momento estimar parámetros de modelos de n-gramas con suavizado.
+
+* Ejercicio 3:  Generación de texto.
+    
+    Se implementó un generador de oraciones basado en un modelo de n-gramas, 
+utilizando la técnica de la "transformada inversa", para el caso de v.a. 
+discretas.
+    Presentamos a continuación, algunas de las oraciones obtenidas, con los
+distintos modelos:
+    _ n = 1:
+            "oficial pregunta sintió pantalla , Bill risa de cilindro biots 
+            preguntó , su Timmy Ahora"
+            
+            "maniobra dentro apenas tenía exigiría , evitar mí recesión 
+            cualquier que , les que enterarme le un abajo . " 
+             
+            "alegremente no era pregunta que finalmente controlar todavía que 
+            sin ."
+            
+            "dilema de Nuestro . viajando más libro a estaba cincuenta . "
+            
+    _ n = 2:
+            "Informe cuando creyó que me dice que se sentara ."
+            
+            "Después de que no era extremadamente decepcionada : era lo menos , 
+            no estaba analizando esa cosa que El catolicismo ."
+            
+            "Todo el límite de una vez el núcleo de quince años de 
+            inspección , pues ."
+            
+            "Quizás alguien muy impresionante en un tirano de la estrella en 
+            los otros cuatro dedos entremetidos ."
+            
+    _ n = 3: 
+            "Tiene una antigüedad de Cessna del Aeroclub de Flagstaff . "
+            
+            "En mitad de sus creadores que te quiero profundamente , cuando 
+            tomaba un trago de agua se vertía a mares en su pecera , y podía 
+            contarlos uno por uno al lado de la plataforma ."
+            
+            "El agua libre , se halla tanto más que proyecciones o imágenes de 
+            acción e impulso , los tres más han sugerido que la octoaraña va a 
+            ayudar a bajarlo intervino Francesca ."
+            
+            "Hay alguien en la sala de estar volviéndome loco ."
+            
+    _ n = 4:
+            "Richard hacía chasquear los dedos delante de los dos médicos 
+            convictos , en especial a la edad de siete años ."
+            
+            "El fax nos permite intercambiar ideas casi a tiempo real ."
+            
+            "Al igual que el Lado Lejano , más allá de nuestra comprensión 
+            que siempre nos dijeron ."
+            
+            "La fugaz imagen que tuvo de los seres humanos habían practicado 
+            una abertura a través del Mar Cilíndrico . "
+    
+* Ejercicio 4: Suavizado "add-one".
+    Se implementó un modelo de lenguaje de n-gramas con suavizado "add-one", en 
+la clase AddOneNGram, la cual hereda de NGram, para presentar la misma interfaz
+(más los métodos extras requeridos), y reutilizar el código de cálculo de
+probabilidad y probabilidad logarítmica de sentencias, así como la definición
+del diccionario de conteos de ocurrencias de n-gramas.
+
+Ejercicio 5: Evaluación de Modelos de Lenguaje.
+    Al corpus utilizado en los puntos anteriores, se lo dividió en conjunto
+de entrenamiento y conjunto de test. Para el calculo de log-probability,
+cross-entropy y perplejidad se utilizaron los correspondientes métodos definidos
+en NGram, y heredados por AddOneNGram.
+    Los resultados obtenidos se presentan a continuación:
+
+        n   Cross Entropy               Perplejidad
+        1   -10.3610247279209           1315.1619302040629
+        2   -11.603053458369855         3110.7644864843082
+        3   -14.00118436077535          16397.45574326532
+        4   -14.605756356120269         24932.783880922954
+
+Ejercicio 6: Suavizado por Interpolación
+    Se implementó un modelo de lenguaje de n-gramas, con suavizado por
+interpolación. Para la estimación del parámetro gamma se implementó un algoritmo
+de "Hill Climbing". Para la determinación del gradiente, se empleó el "gradiente
+empírico" (evaluar a ambos lados de un punto, para determinar la dirección
+a tomar). El algoritmo estima la ubicación de un máximo local, y luego refina
+la estimación en sucesivas pasadas, con un paso cada vez menor (esto a raiz de que,
+en las pruebas realizadas, se encontró determinó un intervalo grande de 
+búsqueda de posibles valores de gamma). Se considera que,
+por la forma de la función de log-likelihood (sobre datos "held-out"), el
+máximo local encontrado por el algoritmo, es también un máximo global.
+    Se utilizaron los estadísticos de cross-entropy y perplejidad para evaluar
+el modelo resultante. Presentamos los resultados a continuación:
+
+        n   Cross Entropy               Perplejidad
+        1   -10.363109117650895         1317.0634348214612
+        2   -7.166154657748283          143.62416127637272
+        3   -6.271527892738507          77.2534733058211
+        4   -5.955664156133755          62.0631129559008
+
+Ejercicio 7: Suavizado por Back-Off con Discounting
+    Se implementó un modelo de lenguaje de n-gramas, con suavizado por Back-Off
+con Discounting. Para la estimación del parámetro beta se utilizó un algoritmo
+similar al empleado para el caso de la estimación del parámetro gamma, del 
+ejercicio 6. En este caso, no se utilizó la técnica de refinado de la estimación.
+Se trabaja con un paso pequeño desde el comienzo, dado el rango reducido de posibles
+valores de beta.
+    Tambien se utilizaron los estadísticos de cross-entropy y perplejidad para 
+evaluar el modelo resultante. Presentamos los resultados a continuación:
+
+            n   Cross Entropy               Perplejidad
+            1   -10.363107431894138         1317.0618958633133
+            2   -6.729749347523389          106.13446056116533
+            3   -4.850540026676714          28.8508121599924
+            4   -3.964789786923844          15.6142328786294
