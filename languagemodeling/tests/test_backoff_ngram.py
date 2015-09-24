@@ -3,7 +3,6 @@ from unittest import TestCase
 
 from languagemodeling.ngram import BackOffNGram
 
-
 class TestBackoffNGram(TestCase):
 
     def setUp(self):
@@ -42,6 +41,7 @@ class TestBackoffNGram(TestCase):
             ('salmón',): 1 * 0.5 / 1,
         }
         for tokens, a in alpha.items():
+            print("tokens: "+str(tokens))
             self.assertAlmostEqual(model.alpha(tokens), a, msg=tokens)
 
         # normalization factor
@@ -230,6 +230,7 @@ class TestBackoffNGram(TestCase):
             for prev in prevs:
                 prob_sum = sum(model.cond_prob(token, prev) for token in tokens)
                 # prob_sum < 1.0 or almost equal to 1.0:
+                print("prob_sum: "+str(prob_sum))
                 self.assertAlmostLessEqual(prob_sum, 1.0, msg=prev)
 
     def test_held_out(self):
