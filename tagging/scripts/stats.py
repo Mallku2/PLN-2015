@@ -138,7 +138,7 @@ if __name__ == '__main__':
         print('Palabras más frecuentes: {}'.format(str(data["words_with_tag"])))
         print('-----------------------------')
     
-    print('Niveles de ambüedad de las palabras:')
+    print('Niveles de ambigüedad de las palabras:')
     
     for amb_level, counts in amb_statistics.items():
         print("Nivel de ambigüedad: "+str(amb_level))
