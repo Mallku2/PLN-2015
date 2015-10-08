@@ -16,7 +16,7 @@ sys.path.append("/home/mallku/Desktop/PLN/Prácticos/Mi Repo Git/PLN-2015/")
 
 from corpus.ancora import SimpleAncoraCorpusReader
 
-def collect_statistics(sents, most_seen_tags = 10, words_with_tag = 5):
+def calculate_counts(sents):
     # Collect data about the corpus.
     words_occurrences = 0
     words = set()
@@ -47,7 +47,12 @@ def collect_statistics(sents, most_seen_tags = 10, words_with_tag = 5):
                 tags_per_words[word] = defaultdict(int)
                 
             tags_per_words[word][tag] += 1
-            
+
+    return (len(sents), words_occurrences, len(words), len(tags),\
+            dict_tags_count, words_per_tags, tags_per_words)
+
+def collect_statistics(dict_tags_count, words_per_tags, tags_per_words,\
+                       most_seen_tags = 10, words_with_tag = 5):
     # Sort dicts by count.
     def sort_func(tup): return len(tup[1])
     
@@ -59,7 +64,8 @@ def collect_statistics(sents, most_seen_tags = 10, words_with_tag = 5):
 
     tags_per_words_counts = list(tags_per_words.items())
     tags_per_words_counts.sort(key = sort_func)
-    
+    tags_statistics = {}
+    amb_statistics = {}
     # Take the most_seen_tags most seen tags.
     for tag, count in tags_count[0:most_seen_tags]:
         tags_statistics[tag] = {}
@@ -95,24 +101,28 @@ def collect_statistics(sents, most_seen_tags = 10, words_with_tag = 5):
             amb_statistics[amb_level]["words"] += 1
             amb_statistics[amb_level]["words_freq"].append((word, word_freq))
 
-    return (len(sents), words_occurrences, len(words), len(tags), \
-            tags_statistics, amb_statistics)
+    return (tags_statistics, amb_statistics)
 
 if __name__ == '__main__':
     opts = docopt(__doc__)
     
     # Load the data.
     corpus = SimpleAncoraCorpusReader('ancora-2.0/')
-    sents = corpus.tagged_sents()
+    # TODO: vamos a necesitar todos los valores. Los pasamos a una lista.
+    sents = list(corpus.tagged_sents())
     
     # Collect statistics.
-    tup = collect_statistics(sents)
-    len_sents = tup[0]
-    words_occurrences = tup[1]
-    len_words = tup[2]
-    len_tags = tup[3]
-    tags_statistics = tup[4]
-    amb_statistics = tup[5]
+    counts = calculate_counts(sents)
+    len_sents = counts[0]
+    words_occurrences = counts[1]
+    len_words = counts[2]
+    len_tags = counts[3]
+    dict_tags_count = counts[4]
+    words_per_tags = counts[5]
+    tags_per_words = counts[6]
+    tags_statistics, amb_statistics = collect_statistics(dict_tags_count, \
+                                                         words_per_tags, \
+                                                         tags_per_words)
 
     # Show statistics.
     print('Estadísticas básicas:')
@@ -122,5 +132,18 @@ if __name__ == '__main__':
     print('\tCantidad de etiquetas: {}'.format(len_tags))
     
     print('Etiquetas más frecuentes:')
-    print('tags statistics: {}'.format(tags_statistics))
-    print('amb statistics: {}'.format(amb_statistics))
+    
+    for tag, data in tags_statistics.items():
+        print('Etiqueta: {}'.format(tag))
+        print('Frecuencia: {}'.format(data["count"]))
+        print('Porcentaje del total: {}'.format(data["total_percent"]))
+        print('Palabras más frecuentes: {}'.format(str(data["words_with_tag"])))
+        print('-----------------------------')
+    
+    print('Niveles de ambüedad de las palabras:')
+    
+    for amb_level, counts in amb_statistics.items():
+        print("Nivel de ambigüedad: "+str(amb_level))
+        print("Cantidad de palabras: "+str(amb_statistics[amb_level]['words']))
+        print("Palabras más frecuentes: "+str(amb_statistics[amb_level]['words_freq']))
+        print("-----------------------------")
