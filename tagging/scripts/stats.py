@@ -8,16 +8,21 @@ Options:
 from docopt import docopt
 from collections import defaultdict
 
-import sys
-# TODO: resolver esto!
-sys.path.append("/home/mallku/Desktop/PLN/Prácticos/Mi Repo Git/PLN-2015/")
-
 from corpus.ancora import SimpleAncoraCorpusReader
 
 def calculate_counts(sents):
+    """ Collects data from the corpus:
+        _ quantity of sentences.
+        _ words.
+        _ words' occurrences.
+        _ tags.
+        _ tags' counts.
+        _ for a given word, the count of the tags with which it appears in the corpus.
+        _ for a given tag, the count of the words with which it appears in the corpus.
+    """
     # Collect data about the corpus.
-    words_occurrences = 0
-    words = set()
+    words_occurrences = 0 
+    words = set() # 
     tags = set()
     dict_tags_count = defaultdict(int)
     words_per_tags = {}
@@ -26,10 +31,11 @@ def calculate_counts(sents):
     amb_statistics = {}
     
     for sent in sents:
-        # Each element in sent is a tuple, corresponding to a tagged word.
         len_sent = len(sent)
+
         words_occurrences += len_sent
         for i in range(len_sent):
+            # Each element in sent is a tuple, corresponding to a tagged word.
             tup = sent[i]
             word, tag = tup[0], tup[1]
             words.add(word)
@@ -92,8 +98,7 @@ def collect_statistics(dict_tags_count, words_per_tags, tags_per_words,\
         if amb_level not in amb_statistics:
             amb_statistics[amb_level] = {}
             amb_statistics[amb_level]["words"] = 1
-            amb_statistics[amb_level]["words_freq"] = []
-            amb_statistics[amb_level]["words_freq"].append((word, word_freq))
+            amb_statistics[amb_level]["words_freq"] = [(word, word_freq)]
         else:
             # {amb_level in amb_statistics}
             amb_statistics[amb_level]["words"] += 1
@@ -129,19 +134,48 @@ if __name__ == '__main__':
     print('\tCantidad de palabras: {}'.format(len_words))
     print('\tCantidad de etiquetas: {}'.format(len_tags))
     
-    print('Etiquetas más frecuentes:')
+    print('\nEtiquetas más frecuentes:')
+    
+    # Template for frequent tags' presentation.
+    more_freq_template = '{0:8}|{1:10}|{2:>20}|{3:20}'
+    
+    print('\n'+more_freq_template.format('Etiqueta', 'Frecuencia', 'Porcentaje del total', \
+                          'Palabras más frecuentes'))
     
     for tag, data in tags_statistics.items():
-        print('Etiqueta: {}'.format(tag))
-        print('Frecuencia: {}'.format(data["count"]))
-        print('Porcentaje del total: {}'.format(data["total_percent"]))
-        print('Palabras más frecuentes: {}'.format(str(data["words_with_tag"])))
-        print('-----------------------------')
+        tup = data['words_with_tag'][0]
+        t, c = tup[0], tup[1]
+        freq_words = '\'' + t + '\': ' + str(c)
+        
+        # Organize the data related with frequent words and their count.
+        for i in range(1, len(data['words_with_tag'])):
+            tup = data['words_with_tag'][i]
+            t, c = tup[0], tup[1]
+            freq_words += ', \'' + t + '\': ' + str(c)
+
+        print(more_freq_template.format(tag, data['count'], \
+                              '{:.4}'.format(data['total_percent']), \
+                              freq_words))
     
-    print('Niveles de ambüedad de las palabras:')
+    # Template for words' ambiguity presentation.
+    words_amb_template = '{0:20}|{1:20}|{2:>20}'
     
+    print('\nNiveles de ambigüedad de las palabras:')
+    
+    print('\n'+words_amb_template.format('Nivel de ambigüedad', 'Cantidad de palabras', \
+                               'Palabras más frecuentes'))
+
     for amb_level, counts in amb_statistics.items():
-        print("Nivel de ambigüedad: "+str(amb_level))
-        print("Cantidad de palabras: "+str(amb_statistics[amb_level]['words']))
-        print("Palabras más frecuentes: "+str(amb_statistics[amb_level]['words_freq']))
-        print("-----------------------------")
+        tup = amb_statistics[amb_level]['words_freq'][0]
+        t, c = tup[0], tup[1]
+        freq_words = '\'' + t + '\': ' + str(c)
+        
+        # Organize the data related with frequent words and their count.
+        for i in range(1, len(amb_statistics[amb_level]['words_freq'])):
+            tup = amb_statistics[amb_level]['words_freq'][i]
+            t, c = tup[0], tup[1]
+            freq_words += ', \'' + t + '\': ' + str(c)
+             
+        print(words_amb_template.format(amb_level, \
+                                   amb_statistics[amb_level]['words'], \
+                                   freq_words))
