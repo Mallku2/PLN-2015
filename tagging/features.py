@@ -8,12 +8,14 @@ from featureforge.feature import Feature
 # i -- the position to be tagged.
 History = namedtuple('History', 'sent prev_tags i')
 
+
 def prev_tags(h):
     """Returns the prev_tags component of the given history
-    
+
     h -- a history.
     """
     return h[1]
+
 
 def word_lower(h):
     """Feature: current lowercased word.
@@ -21,7 +23,14 @@ def word_lower(h):
     h -- a history.
     """
     sent, i = h.sent, h.i
-    return sent[i].lower()
+    if i >= 0:
+        ret = sent[i].lower()
+    else:
+        # {i < 0}
+        ret = 'BOS'
+    
+    return ret 
+
 
 def word_istitle(h):
     """Feature: current lowercased word.
@@ -30,7 +39,14 @@ def word_istitle(h):
     """
     # TODO: sólo chequeamos la primer letra?
     sent, i = h.sent, h.i
-    return sent[i][0].isupper() and sent[i][1:].islower()
+    if i >= 0:
+        ret = sent[i][0].isupper() and sent[i][1:].islower()
+    else:
+        # {i < 0}
+        ret = False
+
+    return ret
+
 
 def word_isupper(h):
     """Feature: current lowercased word.
@@ -38,8 +54,15 @@ def word_isupper(h):
     h -- a history.
     """
     sent, i = h.sent, h.i
-    
-    return sent[i].isupper()
+
+    if i >= 0:
+        ret = sent[i].isupper()
+    else:
+        # {i < 0}
+        ret = False
+
+    return ret
+
 
 def word_isdigit(h):
     """Feature: current lowercased word.
@@ -48,7 +71,13 @@ def word_isdigit(h):
     """
     sent, i = h.sent, h.i
     
-    return sent[i].isdigit()
+    if i >= 0:
+        ret = sent[i].isdigit()
+    else:
+        # {i < 0}
+        ret = False
+
+    return ret
 
 
 class NPrevTags(Feature):
@@ -67,12 +96,10 @@ class NPrevTags(Feature):
         """
         return h[1][len(h[1]) - self.n:]
 
-
 class PrevWord(Feature):
-    # TODO: bag-of-words?
     def __init__(self, f):
         """Feature: the feature f applied to the previous word.
- 
+
         f -- the feature.
         """
         self.f = f
@@ -82,8 +109,6 @@ class PrevWord(Feature):
 
         h -- the history.
         """
-        # TODO: este history esta bien?.
-        # TODO: me falta tratar los casos en los que h[2]-1 < 0 => se devuelve
-        # BOS
-        new_h = History(h[0],h[1],h[2]-1)
-        return self.f(new_h)
+        new_h = History(list(h[0]), tuple(h[1]), h[2] - 1)
+        
+        return str(self.f(new_h))

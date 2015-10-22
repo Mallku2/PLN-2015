@@ -4,7 +4,7 @@ from collections import defaultdict
 class HMM:
     beginning_symbol = ['<s>']
     stop_symbol = ['</s>']
-    
+
     # TODO: es un modelo de trigrama? 
     def __init__(self, n, tagset, trans, out):
         """
@@ -17,29 +17,29 @@ class HMM:
         self._tagset = tagset
         self._trans = trans
         self._out = out
- 
+
     def tagset(self):
         """Returns the set of tags.
         """
         return self._tagset
- 
+
     def trans_prob(self, tag, prev_tags):
         """Probability of a tag.
- 
+
         tag -- the tag.
         prev_tags -- tuple with the previous n-1 tags (optional only if n = 1).
         """
         # TODO: asi?
         ret = 0.0
-        
+
         if prev_tags in self._trans and tag in self._trans[prev_tags]:
             ret = self._trans[prev_tags][tag]
-            
+
         return ret
- 
+
     def out_prob(self, word, tag):
         """Probability of a word given a tag.
- 
+
         word -- the word.
         tag -- the tag.
         """
@@ -302,7 +302,8 @@ class MLHMM:
             ret = 1.0/self._len_words
         else:
             # {not self.unknown(word)}
-            ret = self._tagged_words_counts[(word, tag)] / float(self._tags_counts[(tag,)])
+            ret = self._tagged_words_counts[(word, tag)] / \
+                float(self._tags_counts[(tag,)])
 
         return ret
  
