@@ -56,16 +56,16 @@ if __name__ == '__main__':
         hits_sent = [m == g for m, g in zip(model_tag_sent, gold_tag_sent)]
 
         # Positions in sent of unknown words.
-        u_wds_pos = set(i for i in range(len(word_sent)) if
-                        model.unknown(word_sent[i]))
+        u_wds_pos = set(j for j in range(len(word_sent)) if
+                        model.unknown(word_sent[j]))
         # Positions in sent of known words.
-        k_wds_pos = set(i for i in range(len(word_sent)) if i not in
+        k_wds_pos = set(j for j in range(len(word_sent)) if j not in
                         u_wds_pos)
 
-        u_wds_hits = [model_tag_sent[i] == gold_tag_sent[i] for i in
+        u_wds_hits = [model_tag_sent[j] == gold_tag_sent[j] for j in
                       u_wds_pos]
 
-        k_wds_hits = [model_tag_sent[i] == gold_tag_sent[i] for i in
+        k_wds_hits = [model_tag_sent[j] == gold_tag_sent[j] for j in
                       k_wds_pos]
 
         hits += sum(hits_sent)
