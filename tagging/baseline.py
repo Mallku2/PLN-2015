@@ -1,46 +1,43 @@
 from collections import defaultdict
-# TODO: para que uso stats?
-from tagging.scripts import stats
 
 
 class BaselineTagger:
 
     def __init__(self, tagged_sents):
-        """ tagged_sents -- a non-empty list of training sentences, each one being
-                        a list of pairs.
+        """tagged_sents -- a non-empty list of training sentences, each one
+                        being a list of pairs.
         """
-        # TODO: estaria bueno poder reutilizar el código de stats?
-        self.tags_per_words = {}
-        self.most_seen_tag = None
-        # TODO: para que uso count?
-        count = float('-inf')
+        tags_per_words = {}
+        self.most_seen_tag_per_words = {}
+
         tags_counts = defaultdict(int)
+        self.most_seen_tag = None
 
         for sentence in tagged_sents:
             for tuple in sentence:
                 word = tuple[0]
                 tag = tuple[1]
-                if word not in tagged_sents:
-                    self.tags_per_words[word] = defaultdict(int)
+                if word not in tags_per_words:
+                    tags_per_words[word] = defaultdict(int)
 
-                # {word into tagged_sents}
-                self.tags_per_words[word][tag] += 1
+                # {word into tags_per_words}
+                tags_per_words[word][tag] += 1
+
                 tags_counts[tag] += 1
 
-        # Determine the most seen tag.
-        tags_counts_ordered = list(tags_counts.items())
-        tags_counts_ordered.sort(reverse=True,
-                                 key=lambda tup: tup[1])
-
-        self.most_seen_tag = tags_counts_ordered[0][0]
-
         # Order tags by occurrence.
-        for word, tags in self.tags_per_words.items():
-            self.tags_per_words[word] = list(tags.items())
-            self.tags_per_words[word].sort(reverse=True,
-                                           key=lambda tup: tup[1])
+        tags_count_ord = list(tags_counts.items())
+        tags_count_ord.sort(reverse=True,
+                            key=lambda tup: tup[1])
+        self.most_seen_tag = tags_count_ord[0][0]
 
-        print("self.tags_per_words: "+str(self.tags_per_words))
+        # Select the most seen tag, for each word.
+        for word, tags in tags_per_words.items():
+            tags_per_words[word] = list(tags.items())
+            tags_per_words[word].sort(reverse=True,
+                                      key=lambda tup: tup[1])
+            # Stay with the most seen tag.
+            self.most_seen_tag_per_words[word] = tags_per_words[word][0][0]
 
     def tag(self, sent):
         """Tag a sentence.
@@ -57,7 +54,7 @@ class BaselineTagger:
         tag = None
 
         if not self.unknown(w):
-            tag = self.tags_per_words[w][0][0]
+            tag = self.most_seen_tag_per_words[w]
         else:
             tag = self.most_seen_tag
 
@@ -68,4 +65,4 @@ class BaselineTagger:
 
         w -- the word.
         """
-        return w not in self.tags_per_words
+        return w not in self.most_seen_tag_per_words

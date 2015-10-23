@@ -116,7 +116,7 @@ if __name__ == '__main__':
     opts = docopt(__doc__)
 
     # Load the data.
-    corpus = SimpleAncoraCorpusReader('ancora-2.0/')
+    corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/')
     sents = list(corpus.tagged_sents())
 
     # Collect statistics.
@@ -166,12 +166,13 @@ if __name__ == '__main__':
                                         freq_words))
 
     # Template for words' ambiguity presentation.
-    words_amb_template = '{0:20}|{1:20}|{2:>20}'
+    words_amb_template = '{0:20}|{1:20}|{2:>20}|{3:>20}'
 
     print('\nNiveles de ambigüedad de las palabras:')
 
     print('\n'+words_amb_template.format('Nivel de ambigüedad',
                                          'Cantidad de palabras',
+                                         'Porcentaje del total',
                                          'Palabras más frecuentes'))
 
     for amb_level, counts in amb_statistics.items():
@@ -185,6 +186,9 @@ if __name__ == '__main__':
             t, c = tup[0], tup[1]
             freq_words += ', \'' + t + '\': ' + str(c)
 
+        quantity = amb_statistics[amb_level]['words']
         print(words_amb_template.format(amb_level,
-                                        amb_statistics[amb_level]['words'],
+                                        quantity,
+                                        '{:.4}'.format(float(quantity) /
+                                                       words_occurrences),
                                         freq_words))

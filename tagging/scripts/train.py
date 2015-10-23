@@ -1,12 +1,16 @@
 """Train a sequence tagger.
 
 Usage:
-  train.py [-m <model>] -o <file>
+  train.py [-m <model>] [-n <number>] -o <file>
   train.py -h | --help
 
 Options:
   -m <model>    Model to use [default: base]:
                   base: Baseline
+                  mlhmm: Hidden Markov Model with a Maximum Likelihood
+                  parameters' estimation.
+                  memm: Maximum Entropy Markov model.
+  -n <number>   Order of the model (only for mlhmm)
   -o <file>     Output model file.
   -h --help     Show this screen.
 """
@@ -15,10 +19,14 @@ import pickle
 
 from corpus.ancora import SimpleAncoraCorpusReader
 from tagging.baseline import BaselineTagger
+from tagging.hmm import MLHMM
+from tagging.memm import MEMM
 
 
 models = {
     'base': BaselineTagger,
+    'mlhmm': MLHMM,
+    'memm': MEMM,
 }
 
 
@@ -31,7 +39,11 @@ if __name__ == '__main__':
     sents = list(corpus.tagged_sents())
 
     # train the model
-    model = models[opts['-m']](sents)
+    model_type = opts['-m']
+    if model_type == 'base':
+        model = models[model_type](sents)
+    else:
+        model = models[model_type](int(opts['-n']), sents)
 
     # save it
     filename = opts['-o']

@@ -28,8 +28,8 @@ def word_lower(h):
     else:
         # {i < 0}
         ret = 'BOS'
-    
-    return ret 
+
+    return ret
 
 
 def word_istitle(h):
@@ -37,13 +37,12 @@ def word_istitle(h):
 
     h -- a history.
     """
-    # TODO: sólo chequeamos la primer letra?
     sent, i = h.sent, h.i
     if i >= 0:
         ret = sent[i][0].isupper() and sent[i][1:].islower()
     else:
         # {i < 0}
-        ret = False
+        ret = 'BOS'
 
     return ret
 
@@ -59,7 +58,7 @@ def word_isupper(h):
         ret = sent[i].isupper()
     else:
         # {i < 0}
-        ret = False
+        ret = 'BOS'
 
     return ret
 
@@ -70,12 +69,12 @@ def word_isdigit(h):
     h -- a history.
     """
     sent, i = h.sent, h.i
-    
+
     if i >= 0:
         ret = sent[i].isdigit()
     else:
         # {i < 0}
-        ret = False
+        ret = 'BOS'
 
     return ret
 
@@ -96,6 +95,7 @@ class NPrevTags(Feature):
         """
         return h[1][len(h[1]) - self.n:]
 
+
 class PrevWord(Feature):
     def __init__(self, f):
         """Feature: the feature f applied to the previous word.
@@ -110,5 +110,5 @@ class PrevWord(Feature):
         h -- the history.
         """
         new_h = History(list(h[0]), tuple(h[1]), h[2] - 1)
-        
+
         return str(self.f(new_h))
