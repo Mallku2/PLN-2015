@@ -115,7 +115,7 @@ def collect_statistics(dict_tags_count, words_per_tags, tags_per_words,
 if __name__ == '__main__':
     opts = docopt(__doc__)
 
-    # Load the data.
+    # load the data
     corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/')
     sents = list(corpus.tagged_sents())
 
