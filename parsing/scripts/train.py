@@ -17,13 +17,15 @@ import pickle
 
 from corpus.ancora import SimpleAncoraCorpusReader
 
-from parsing.baselines import Flat, RBranch, LBranch
-
+from parsing.baselines import Flat, RBranch#, LBranch
+from parsing.upcfg import UPCFG
 
 models = {
     'flat': Flat,
     'rbranch': RBranch,
-    'lbranch': LBranch,
+    'upcfg': UPCFG
+    #'lbranch': LBranch,
+    
 }
 
 

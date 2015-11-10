@@ -2,6 +2,7 @@ from nltk.tree import Tree
 from nltk.grammar import Production, ProbabilisticProduction, PCFG, Nonterminal
 from parsing.cky_parser import CKYParser
 
+
 class UPCFG:
     """Unlexicalized PCFG.
     """
@@ -18,43 +19,63 @@ class UPCFG:
         for parsed_sent in parsed_sents:
             # TODO: hacer un test que me muestre que efecitivamente stamos
             # convirtiendo adecuadamente la gramatica a Chonsky Normal Form
+            
+            
             parsed_sent.chomsky_normal_form()
-            org_prods += parsed_sent.productions()
-        
+            parsed_sent.collapse_unary(collapsePOS = True,
+                                       collapseRoot = True)
+            aux = parsed_sent.productions()
+            org_prods += aux
+            """for prod in aux:
+                if (prod.is_lexical() and len(prod.rhs()) != 1) or\
+                       (prod.is_nonlexical() and len(prod.rhs()) != 2):
+                    
+                    print("prod: "+str(prod))
+                    print("is_lexical: "+str(prod.is_lexical()))
+                    print("is_nonlexical: "+str(prod.is_nonlexical()))
+                    print("len(prod.rhs()): "+str(len(prod.rhs())))
+                    parsed_sent.draw()
+                    assert(False)"""
+
         # Contabilice each production and delete lexical information.
         dict_aux = {}
         for prod in org_prods:
+            # Have we found lexical information?
+            found_lexical = False
+
             lhs = prod.lhs()
             
             if lhs not in dict_aux:
-                dict_aux[lhs] = {}
+                # list(Total occurrences of productions of lhs, 
+                #      dict(rhs x occurrences of lhs->rhs))
+                dict_aux[lhs] = [0, {}]
+
+            dict_aux[lhs][0] += 1
             
-            # TODO: cambiar el comnetario cuando cambie el ombre del diccionario    
-            # {lhs in aux}
+            # {lhs in dict_aux}
             rhs = prod.rhs()
             prod_is_lexical = prod.is_lexical()
             
-            if rhs not in dict_aux[lhs]:
-                # Delete lexical information.
-                if prod_is_lexical:
-                    # Then, as it is in Chosmky Normal Form, it must be a
-                    # production of the form Nonterminal -> Terminal.
-                    # We'll count the production just once.
-                    dict_aux[lhs][(lhs.symbol(),)] = 1
+            if prod_is_lexical:
+                if (lhs.symbol(),) not in dict_aux[lhs][1]:
+                    dict_aux[lhs][1][(lhs.symbol(),)] = 1
                 else:
-                    # {not prod_is_lexical}
-                    dict_aux[lhs][rhs] = 0
-
-            if not prod_is_lexical:
-                # {rhs in dict_aux[lhs]}
-                dict_aux[lhs][rhs] += 1
+                    dict_aux[lhs][1][(lhs.symbol(),)] += 1
+            else:
+                if rhs not in dict_aux[lhs][1]:
+                    dict_aux[lhs][1][rhs] = 1
+                else:
+                    dict_aux[lhs][1][rhs] += 1
 
         # Calculate probabilities.
         for lhs in dict_aux:
-            total = float(len(dict_aux[lhs]))
+            total = dict_aux[lhs][0]
+            rhs_counts = dict_aux[lhs][1]
+            sum = 0.0
 
-            for rhs, count in dict_aux[lhs].items():
+            for rhs, count in rhs_counts.items():
                 prob = count / total
+                sum += prob
                 self._productions.append(ProbabilisticProduction(lhs, 
                                                                  rhs,
                                                                  prob = prob))
