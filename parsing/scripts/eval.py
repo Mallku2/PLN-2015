@@ -39,53 +39,64 @@ if __name__ == '__main__':
     print('Loading corpus...')
     files = '3LB-CAST/.*\.tbf\.xml'
     corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/', files)
-    parsed_sents = list(corpus.parsed_sents())
-    
-    # TODO: estamos usando las mismas oraciones con las que entrenamos...
-    # El test tenemos que hacerlo sobre una porción diferente...
-    # Del mismo modo, el train tenemos que sacarlo de un conjunto diferente
-    # al del test...
+    res = list(corpus.parsed_sents())
+    test_beg = int(len(res) * 0.9)
+    # Evaluate only over the last 10% of the corpus.
+    parsed_sents = res[test_beg:]
+
     # Filter sentences of interest.
     quantity = opts['-n']
     if quantity is not None:
         n = int(quantity)
         parsed_sents = parsed_sents[0: n]
-        
+
     length = opts['-m']
     if length is not None:
         m = int(length)
-        parsed_sents = [sent for sent in parsed_sents 
-                        if len(sent) <= m]
-    
-    for sent in parsed_sents:
-        sent.chomsky_normal_form()
-        sent.collapse_unary(collapsePOS = True,
-                                   collapseRoot = True)
+    else:
+        m = -1
 
     print('Parsing...')
-    hits, total_gold, total_model = 0, 0, 0
+    hits, total_gold, total_model, un_hits = 0, 0, 0, 0
     n = len(parsed_sents)
     format_str = '{:3.1f}% ({}/{}) (P={:2.2f}%, R={:2.2f}%, F1={:2.2f}%)'
     progress(format_str.format(0.0, 0, n, 0.0, 0.0, 0.0))
     for i, gold_parsed_sent in enumerate(parsed_sents):
         tagged_sent = gold_parsed_sent.pos()
 
-        # parse
-        model_parsed_sent = model.parse(tagged_sent)
+        if m == -1 or len(tagged_sent) <= m:
+            # parse
+            model_parsed_sent = model.parse(tagged_sent)
 
-        # compute labeled scores
-        gold_spans = spans(gold_parsed_sent, unary=False)
-        model_spans = spans(model_parsed_sent, unary=False)
-        hits += len(gold_spans & model_spans)
-        total_gold += len(gold_spans)
-        total_model += len(model_spans)
+            # compute labeled scores
+            gold_spans = spans(gold_parsed_sent, unary=False)
+            un_gold_spans = set(((tup[1], tup[2]) for tup in gold_spans))
 
-        # compute labeled partial results
-        prec = float(hits) / total_model * 100
-        rec = float(hits) / total_gold * 100
-        f1 = 2 * prec * rec / (prec + rec)
+            model_spans = spans(model_parsed_sent, unary=False)
+            un_model_spans = set(((tup[1], tup[2]) for tup in model_spans))
 
-        progress(format_str.format(float(i+1) * 100 / n, i+1, n, prec, rec, f1))
+            hits += len(gold_spans & model_spans)
+            total_gold += len(gold_spans)
+            total_model += len(model_spans)
+
+            un_hits += len(un_gold_spans & un_model_spans)
+
+            # compute labeled partial results
+            prec = float(hits) / total_model * 100
+            rec = float(hits) / total_gold * 100
+            f1 = 2 * prec * rec / (prec + rec)
+
+            # compute unlabeled partial results
+            un_prec = float(un_hits) / total_model * 100
+            un_rec = float(un_hits) / total_gold * 100
+            un_f1 = 2 * un_prec * un_rec / (un_prec + un_rec)
+
+            progress(format_str.format(float(i+1) * 100 / n,
+                                       i+1,
+                                       n,
+                                       prec,
+                                       rec,
+                                       f1))
 
     print('')
     print('Parsed {} sentences'.format(n))
@@ -93,3 +104,7 @@ if __name__ == '__main__':
     print('  Precision: {:2.2f}% '.format(prec))
     print('  Recall: {:2.2f}% '.format(rec))
     print('  F1: {:2.2f}% '.format(f1))
+    print('Unlabeled')
+    print('  Precision: {:2.2f}% '.format(un_prec))
+    print('  Recall: {:2.2f}% '.format(un_rec))
+    print('  F1: {:2.2f}% '.format(un_f1))
