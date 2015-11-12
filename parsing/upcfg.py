@@ -21,8 +21,8 @@ class UPCFG:
         for parsed_sent in parsed_sents:
             t_copy = parsed_sent.copy(deep=True)
             unlexicalize(t_copy)
-            t_copy.collapse_unary(collapsePOS=True)
             t_copy.chomsky_normal_form(horzMarkov=horzMarkov)
+            t_copy.collapse_unary(collapsePOS=True)
             productions += t_copy.productions()
 
         self._pcfg = induce_pcfg(Nonterminal(start), productions)

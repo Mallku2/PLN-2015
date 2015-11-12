@@ -44,7 +44,7 @@ if __name__ == '__main__':
         hm = opts['-k']
         if hm is not None:
             hm = int(hm)
-        model = models[m](parsed_sents, hm)
+        model = models[m](parsed_sents, horzMarkov=hm)
     else:
         model = models[m](parsed_sents)
 
