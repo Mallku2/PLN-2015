@@ -26,13 +26,13 @@ sys.path = sys.path + ["../../"]
 
 from languagemodeling.ngram import NGram, AddOneNGram, InterpolatedNGram, \
     BackOffNGram
-from corpus_clarke import corpus_clarke_tokenizer, corpus_clarke_name
+from corpus_clarke import corpus_clarke_tokenizer, corpus_clarke_training_name
 
 if __name__ == '__main__':
     opts = docopt(__doc__)
 
     # load the data
-    sents = PlaintextCorpusReader("./", corpus_clarke_name,
+    sents = PlaintextCorpusReader("./", corpus_clarke_training_name,
                                   word_tokenizer=corpus_clarke_tokenizer).\
         sents()
     # train the model

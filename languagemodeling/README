@@ -88,10 +88,10 @@ en NGram, y heredados por AddOneNGram.
     Los resultados obtenidos se presentan a continuación:
 
         n   Cross Entropy               Perplejidad
-        1   -10.3610247279209           1315.1619302040629
-        2   -11.603053458369855         3110.7644864843082
-        3   -14.00118436077535          16397.45574326532
-        4   -14.605756356120269         24932.783880922954
+        1   -10.262644061649482         1228.4675735087524
+        2   -11.879307851762539         3767.2807904423457
+        3   -14.609361355349758         24995.163702649992
+        4   -15.391253260841376         42976.28809974845
 
 Ejercicio 6: Suavizado por Interpolación
     Se implementó un modelo de lenguaje de n-gramas, con suavizado por
@@ -108,10 +108,10 @@ máximo local encontrado por el algoritmo, es también un máximo global.
 el modelo resultante. Presentamos los resultados a continuación:
 
         n   Cross Entropy               Perplejidad
-        1   -10.363109117650895         1317.0634348214612
-        2   -7.166154657748283          143.62416127637272
-        3   -6.271527892738507          77.2534733058211
-        4   -5.955664156133755          62.0631129559008
+        1   -10.330613027311886         1287.728758599065
+        2   -8.569709297242671          379.9614642091259
+        3   -8.450637857346173          349.8609552207445
+        4   -8.455531573833273          351.0497216437443
 
 Ejercicio 7: Suavizado por Back-Off con Discounting
     Se implementó un modelo de lenguaje de n-gramas, con suavizado por Back-Off
@@ -124,7 +124,7 @@ valores de beta.
 evaluar el modelo resultante. Presentamos los resultados a continuación:
 
             n   Cross Entropy               Perplejidad
-            1   -10.363107431894138         1317.0618958633133
-            2   -6.729749347523389          106.13446056116533
-            3   -4.850540026676714          28.8508121599924
-            4   -3.964789786923844          15.6142328786294
+            1   -10.330611341057013         1287.7272534731976
+            2   -8.321560424435235          319.91845847493397
+            3   -8.163051668295124          286.6311646436932
+            4   -8.178395617377124          289.6959323257872
