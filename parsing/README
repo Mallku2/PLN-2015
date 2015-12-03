@@ -1,0 +1,176 @@
+ * Ejercicio 1: Evaluación de Parsers
+    Sobre lo ya implementado en eval.py, se agregó lo solicitado.
+    La evaluación de los modelos "baseline" arrojó los siguientes resultados:
+    
+    _ FLAT:
+        Labeled
+          Precision: 100.00% 
+          Recall: 16.17% 
+          F1: 27.84% 
+        Unlabeled
+          Precision: 100.00% 
+          Recall: 16.17% 
+          F1: 27.84% 
+        
+        real    0m15.883s
+        user    0m12.620s
+        sys 0m0.248s
+        
+    _ RBRANCH:
+        Labeled
+          Precision: 9.36% 
+          Recall: 16.17% 
+          F1: 11.86% 
+        Unlabeled
+          Precision: 9.50% 
+          Recall: 16.41% 
+          F1: 12.04% 
+        
+        real    0m21.078s
+        user    0m20.252s
+        sys 0m0.300s
+        
+                
+ 
+ * Ejercicio 2: Algoritmo CKY
+    Se implementó el algoritmo CKY, siguiendo las sugerencias de las filminas
+de Collins, junto con la utilización de un diccionario que hace de "cache" de 
+producciones, para poder obtener la información de las mismas de manera más
+ágil. 
+    Se agregó, a la suite de tests, un caso de una oración con más de un 
+análisis posible. La oración se extrajo de la videolecture "Examples of 
+Ambiguity", del ejemplo sobre "POS ambiguity", referido a la palabra 
+inglesa "duck", la cual puede ocurrir como verbo o sustantivo. De allí que 
+pueda existir más de un análisis, en una oración que la incluya. La oración
+bajo análisis es 'the girl saw her duck with the telescope', y para analizarla
+se definió la siguiente PCFG, en donde las probabilidades se asignaron de
+manera arbitraria:
+
+                S -> NP VP              [1.0]
+                
+                VP -> VP PP             [0.25]
+                VP -> Vt NP             [0.25]
+                VP -> V S               [0.25]
+                VP -> Vi                [0.25]
+                
+                NP -> PRP NN            [0.5]
+                NP -> Det Noun          [0.25]
+                NP -> 'her'             [0.25]
+                
+                PP -> IN NP             [1.0]
+                
+                Vi -> 'duck'            [1.0]
+                
+                IN -> 'with'            [1.0]
+                
+                Det -> 'the'            [1.0]
+                
+                Noun -> 'girl'          [0.25]
+                Noun -> 'telescope'     [0.75]
+                
+                Vt -> 'saw'             [1.0]
+                
+                PRP -> 'her'            [1.0]
+                
+                NN -> 'duck'            [1.0]
+                
+ * Ejercicio 3: PCFGs No Lexicalizadas
+    Se implementó una PCFG no lexicalizada. El código resultante es sucinto,
+gracias a los métodos que provee la clase Tree y procedimientos del módulo
+nltk.grammar (que nos permiten obtener una PCFG en base a las producciones
+ordinarios extraidas del corpus).
+    Se entrenó el modelo resultante, y se lo evaluó sobre la misma porción
+del corpus utilizada en el ejercicio 2. Obtuvimos los siguientes resultados:
+
+        Labeled
+          Precision: 71.10% 
+          Recall: 70.41% 
+          F1: 70.76% 
+        Unlabeled
+          Precision: 73.06% 
+          Recall: 72.35% 
+          F1: 72.71% 
+        
+        real    1m47.062s
+        user    1m43.904s
+        sys 0m0.404s
+        
+ * Ejercicio 4: Markovización Horizontal
+    Se modificó la UPCFG, para agregar la posibilidad de utilizar 
+markovización horizontal (MH). La implementación simplemente se apoya en el 
+método chomsky_normal_form de la clase Tree, el cual, opcionalmente, puede 
+realizar este trabajo.
+    Se evaluaron modelos con MH de orden n variable, entre 0 y 4, sobre la
+misma porción de corpus empleada para evaluar los modelos anteriores.
+Obtuvimos los siguientes resultados:
+    
+    _ MH = 0:
+        Labeled
+          Precision: 65.94% 
+          Recall: 63.54% 
+          F1: 64.72% 
+        Unlabeled
+          Precision: 67.62% 
+          Recall: 65.16% 
+          F1: 66.36% 
+        
+        real    0m42.093s
+        user    0m41.196s
+        sys 0m0.400s
+        
+    _ MH = 1:
+        Labeled
+          Precision: 71.32% 
+          Recall: 71.38% 
+          F1: 71.35% 
+        Unlabeled
+          Precision: 72.86% 
+          Recall: 72.92% 
+          F1: 72.89% 
+        
+        real    0m49.415s
+        user    0m48.076s
+        sys 0m0.392s
+                
+    _ MH = 2:
+        Labeled
+          Precision: 73.38% 
+          Recall: 72.43% 
+          F1: 72.90% 
+        Unlabeled
+          Precision: 75.02% 
+          Recall: 74.05% 
+          F1: 74.53% 
+        
+        real    1m5.575s
+        user    1m4.068s
+        sys 0m0.452s
+                
+    _ MH = 3:
+        Labeled
+          Precision: 74.05% 
+          Recall: 72.43% 
+          F1: 73.23% 
+        Unlabeled
+          Precision: 75.87% 
+          Recall: 74.21% 
+          F1: 75.03% 
+        
+        real    1m9.332s
+        user    1m7.340s
+        sys 0m0.852s
+        
+    _ MH = 4:
+        Labeled
+          Precision: 71.77% 
+          Recall: 70.90% 
+          F1: 71.33% 
+        Unlabeled
+          Precision: 73.65% 
+          Recall: 72.76% 
+          F1: 73.20% 
+        
+        real    1m16.698s
+        user    1m15.224s
+        sys 0m0.492s
+                        
