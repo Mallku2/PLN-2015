@@ -8,7 +8,7 @@ class MainPipeline(object):
 
     def __init__(self):
         # TODO: estoy inscrustando en el código el nombre del archivo...
-        self._bag_of_of_words_rep = BagOfWordsRep("globIndx")
+        self._bag_of_words_rep = BagOfWordsRep("../bag_of_words_rep/globIndx")
         # TODO: quizás acá debería agregar código del constructor de
         # BagOfWords (aquel que lee los archivos en los que guardamos el
         # globalIndex...). Por cierto, no me parece que esté del todo
@@ -54,7 +54,7 @@ class MainPipeline(object):
 
         if item["article_scraped"]:
             self._scraped_news.add(resolved_link)
-            int_rep = self._bag_of_of_words_rep.get_rep(item["content"],
+            int_rep = self._bag_of_words_rep.get_rep(item["content"],
                                                         waiting_first_articles)
             if not waiting_first_articles:
                 pdb.set_trace()
@@ -66,9 +66,11 @@ class MainPipeline(object):
             #self._time_last_article_added[centroid] = time.time()
         else:
             # {not item["article_scraped"]}
-            self._log.write("Enlace al artículo: " + item["resolved_link"] + "\n")
-            self._log.write("Problema: " + str(item["reason_not_scraped"]) + "\n")
-            self._log.write("*******************\n")
+            reason_not_scraped = item["reason_not_scraped"]
+            if reason_not_scraped != 3:
+                self._log.write("Enlace al artículo: " + item["resolved_link"] + "\n")
+                self._log.write("Problema: " + str(reason_not_scraped) + "\n")
+                self._log.write("*******************\n")
         return item
 
     def close_spider(self, spider):
