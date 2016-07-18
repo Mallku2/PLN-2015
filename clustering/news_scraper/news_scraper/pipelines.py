@@ -8,8 +8,7 @@ class NewsScraperPipeline(object):
     def __init__(self):
         # TODO: cambiar el nombre de este archivo...
         self._data_file = open("news.data", "ri+")
-        # TODO: para debuguear
-        self._log = open("log", "r+")
+        self._log = open("log", "a+")
         # For debugging...
         self._new_articles_added = False
         # Determine if the file contains data.
@@ -42,7 +41,7 @@ class NewsScraperPipeline(object):
 
             # {cluster_id in self._corpus}
             # TODO: con la nueva forma de referirnos al id del cluster, no
-            # me va a hacer más falta que add_article reciba por separado el
+            # me va a hacer mas falta que add_article reciba por separado el
             # id de cluster
             self.add_article(cluster_id, item)
         else:
@@ -53,7 +52,7 @@ class NewsScraperPipeline(object):
         return item
 
     def _write_error_to_log(self, link, error_code):
-        self._log.write("Enlace al artículo: " + link + "\n")
+        self._log.write("Enlace al articulo: " + link + "\n")
         self._log.write("Problema: " + str(error_code) + "\n")
         self._log.write("*******************\n")
 
@@ -61,12 +60,12 @@ class NewsScraperPipeline(object):
         """
             PRE : {cluster_id in self._corpus}
         """
-        # TODO: quizas no haga falta almacenar el título separado del cuerpo...
-        # TODO: quizás deberiamos traer aquí la labor de agregar una nueva
+        # TODO: quizas no haga falta almacenar el titulo separado del cuerpo...
+        # TODO: quizas deberiamos traer aqui la labor de agregar una nueva
         # clave a self._corpus
-        # TODO: no esta feo meterse con los índices?
+        # TODO: no esta feo meterse con los indices?
         # TODO: recordar que ya no hace falta hacer tanto despelote con
-        # el cluster_id. Quizás ya no haga falta recibirlo por parámetro.
+        # el cluster_id. Quizas ya no haga falta recibirlo por parametro.
         resolved_link = item["resolved_link"]
         title = item["title"]
         body = item["body"]

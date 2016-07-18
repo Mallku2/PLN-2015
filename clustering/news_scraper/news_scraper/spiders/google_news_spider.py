@@ -51,7 +51,7 @@ class GoogleNewsSpider(scrapy.Spider):
         # NOTE: extraigo los divs...
         divs = response.xpath("//div[@class=\"story-page-main\"]//div[@class=\"topic\"]//div[contains(@class, \"story\")]")
         for div in divs:
-            # TODO: ahora sólo nos hace falta usar una expresión xpath
+            # TODO: ahora solo nos hace falta usar una expresion xpath
             links = div.xpath("h2[@class=\"title\"]//a/@href")
             if len(links) != 1:
                 self._log.write("Problemas intentando extraer los\
@@ -72,13 +72,13 @@ class GoogleNewsSpider(scrapy.Spider):
                 html_parser = BeautifulSoup(div.extract(), 'html.parser')
                 # TODO: feo che...
                 div_parsed = html_parser.find_all("div")[0]
-                # TODO: sólo nos haría falta BeautifulSoup para extraer el atributo
-                # cid (porque no sé cómo hacerlo con xpath). Para lo demás basta
-                # con una expresión xpath...
+                # TODO: solo nos haria falta BeautifulSoup para extraer el atributo
+                # cid (porque no se como hacerlo con xpath). Para lo demas basta
+                # con una expresion xpath...
                 req.meta["cid"] = None
                 for attr in div_parsed.attrs["class"]:
-                    # TODO: esto quizás debería estar en otro
-                    # módulo
+                    # TODO: esto quizas deberia estar en otro
+                    # modulo
                     cluster_id_regexp = "cid-\d+"
                     match = re.search(cluster_id_regexp, attr)
                     if match:
@@ -86,7 +86,7 @@ class GoogleNewsSpider(scrapy.Spider):
                         break
 
                 if not req.meta["cid"]:
-                    self._log.write("No se pudo extraer el cid del artículo " +\
+                    self._log.write("No se pudo extraer el cid del articulo " +\
                                     link + "\n")
                     req = None
                 requests.append(req)
