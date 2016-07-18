@@ -3,13 +3,14 @@ body_selector_index = "body_selector"
 rss_index = "rss_index"
 # TODO: posiblemente tengamos que agregar aqui el link al rss de cada portal
 google_news_main_selectors = {"http://news.google.com/news/story" : {
-                "news_selector" : 
+                "news_selector" :
                     "//div[@class=\"story-page-main\"]//div[@class=\"topic\"]"
                                                                     }
                             }
+
 sites_selectors = {"www\.infobae\.com" :
-                          {title_selector_index : ["//header[@class=\"detail-header clearfix\"]/h1[@class=\"entry-title\"]"],
-                          body_selector_index : ["//div[@class=\"cuerposmart clearfix\"]/div"],
+                          {title_selector_index : ["//header[@class=\"article-header hed-first col-sm-12\"]/h1"],
+                          body_selector_index : ["//div[@id=\"article-body\"]/div[@id=\"article-content\"]"],
                           rss_index : "http://cdn01.ib.infobae.com/adjuntos/162/rss/Infobae.xml"},
 
                     "www\.clarin\.com" :
@@ -19,7 +20,8 @@ sites_selectors = {"www\.infobae\.com" :
 
                     "www\.pagina12\.com\.ar" :
                       {title_selector_index : ["//div[@class=\"nota ultima-noticia top12\"]/h2",
-                                                "//div[@class=\"nota top12\"]/h2"],
+                                                "//div[@class=\"nota top12\"]/h2",
+                                                "//div[@class=\"nota\"]/h2"],
                       body_selector_index : ["//div[@id=\"cuerpo\"]"],
                       rss_index : "http://www.pagina12.com.ar/diario/rss/ultimas_noticias.xml"},
 
