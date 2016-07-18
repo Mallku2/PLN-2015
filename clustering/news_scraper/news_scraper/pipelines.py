@@ -46,8 +46,10 @@ class NewsScraperPipeline(object):
             self.add_article(cluster_id, item)
         else:
             # {not item["article_scraped"]}
-            self._write_error_to_log(item["resolved_link"],
-                                    item["reason_not_scraped"])
+            reason_not_scraped = item["reason_not_scraped"]
+            if reason_not_scraped != 3:
+                self._write_error_to_log(item["resolved_link"],
+                                        item["reason_not_scraped"])
 
         return item
 
