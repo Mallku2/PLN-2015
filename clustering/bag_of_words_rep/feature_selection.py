@@ -8,6 +8,7 @@ from scipy.sparse import lil_matrix
 import cPickle
 import pdb
 
+
 class BagOfWordsRep:
 
     def __init__(self, glob_index_file):
@@ -44,7 +45,8 @@ class BagOfWordsRep:
         self._stemmer = SnowballStemmer("spanish")
 
         # Stop-words.
-        stop_words_file = open("stopWordsSerialized", "r")
+        # TODO: estamos incrustando aquí la dirección de estos archivos...
+        stop_words_file = open("../bag_of_words_rep/stopWordsSerialized", "r")
         self._stop_words_set = cPickle.load(stop_words_file)
         stop_words_file.close()
 
@@ -87,6 +89,19 @@ class BagOfWordsRep:
         return text_stems
 
     def get_rep(self, text, waiting_first_articles):
+        """Returns the vectorial representation of the received text, using the
+        TF-IDF weighting.
+        PARAMS
+        text : A string. The text to be vectorized.
+
+        waiting_first_articles : A boolean. Indicates if we are waiting for an
+         initial determined amount of documents, before computing the TF-IDF
+         weighting.
+
+        RETURNS
+        An instance of lil_matrix.
+        """
+
         # TODO: cambiar el nombree de esta variable
         text_stems = self._prepare_text(text)
         l_text_stems = float(len(text_stems))
@@ -131,7 +146,12 @@ class BagOfWordsRep:
             PARAMS
             doc_count: the number of occurrences of the given word in the
             document being analyzed
+
+            RETURNS
+            A boolean indicating if the word was already present in the global
+            index.
         """
+
         # TODO: no deberíamos también actualizar la frecuencia de todas
         # las otras palabras?
         new_word = False
