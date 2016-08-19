@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from scipy.sparse import lil_matrix
+from scipy.sparse import dok_matrix
 from math import sqrt
 
 class KMeansClusteringComponent(object):
@@ -14,7 +14,7 @@ class KMeansClusteringComponent(object):
         """Applies the k-means algorithm to cluster the given document.
 
             PARAMS
-            document: bag-of-words representation of an article.
+            document: dok_matrix, bag-of-words representation of an article.
         """
         nrst_centroid = None
         dist_nrst_centroid = float("-inf")
@@ -26,34 +26,35 @@ class KMeansClusteringComponent(object):
 
         l_document = sqrt(summatory)
 
-        for key in self._documents:
+        for k, v in self._documents.items():
             # Calculate the distance between the centroid and the document
-            centroid = key[0]
-            dist = self._cosine_similarity(centroid, key[1], new_document,
-                                            l_document)
+            centroid_data = v[0]
+            dist = self._cosine_similarity(centroid_data[0], centroid_data[1],
+                                           new_document, l_document)
 
             if dist > dist_nrst_centroid:
                 dist_nrst_centroid = dist
-                nrst_centroid = key
+                nrst_centroid = k
 
         if dist_nrst_centroid >= self._clustering_threshold:
             # Add the document to the nearest centroid found
-            self._documents[nrst_centroid].add(new_document)
-            documents = self._documents[nrst_centroid]
+            # self._documents[nrst_centroid][1].append(new_document)
+            documents = self._documents[nrst_centroid][1]
+            documents.append(new_document)
 
             # TODO: dada la interpretación que estoy haciendo del algoritmo
             # de clustering (ver notas), sólo nos haría falta redefinir
             # el centroide de este cluster.
 
             # As we added a new document, we must redefine its centroid
-            new_centroid = lil_matrix((1,1))
+            new_centroid = dok_matrix((1,1))
             centroid_dimensions = 1
             first_doc = True # Are we analyzing the first document?
             for document in documents:
                 dimensions = document.shape[1]
                 if dimensions > centroid_dimensions:
                     # TODO: si esto ocurre, no hay problema?
-                    new_centroid = new_centroid.reshape(document.shape)
+                    new_centroid.resize(document.shape)
                     centroid_dimensions = dimensions
 
                 rows, cols = document.nonzero()
@@ -68,16 +69,21 @@ class KMeansClusteringComponent(object):
                 new_centroid[pos] /= float(length_cluster)
                 length_centroid += pow(new_centroid[pos], 2.0)
 
-            self._documents[(new_centroid, length_centroid)] = self._documents[nrst_centroid]
+            # NOTE: the ugliness of this data structure is the result from the
+            # fact that lil_matrix cannot be reshaped (in the way needed)
+            # in version 0.18 of scipy, nor be used as index of dictionaries
+            # (which was possible in 0.17). Now I need to use dok_matrix, which
+            # also are not hashables, so they cannot be index of dictionaries.
+            new_centroid_data = (new_centroid, length_centroid)
+            self._documents[id(new_centroid)] = (new_centroid_data, documents)
             self._documents.pop(nrst_centroid)
 
         else:
             # {dist_nrst_centroid < self._clustering_threshold}
             # The nearest centroid is further than the min. threshold.
             # Create a new cluster, with "document" as its centroid
-            key = (new_document, l_document)
-            self._documents[key] = set()
-            self._documents[key].add(new_document)
+            centroid_data = (new_document, l_document)
+            self._documents[id(new_document)] = (centroid_data, [new_document])
 
     def get_documents(self):
         return self._documents
@@ -88,8 +94,8 @@ class KMeansClusteringComponent(object):
     def _cosine_similarity(self, vect_1, l_vect_1, vect_2, l_vect_2):
         """Returns the cosine similarity between vect1 and vect2.
         PARAMS
-        vect_1 : instance of scipy.sparse.lil_matrix, of 1xn dimensions.
-        vect_2 : instance of scipy.sparse.lil_matrix, of 1xn dimensions.
+        vect_1 : instance of scipy.sparse.dok_matrix, of 1xn dimensions.
+        vect_2 : instance of scipy.sparse.dok_matrix, of 1xn dimensions.
         l_vect_1 : length of vect_1
         l_vect_2 : length of vect_2"""
         dot_product = 0
