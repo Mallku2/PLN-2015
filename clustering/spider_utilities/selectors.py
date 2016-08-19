@@ -51,7 +51,10 @@ sites_selectors = {"www\.infobae\.com" :
                     rss_index : "http://www.perfil.com/rss/ultimomomento.xml"},
 
                     "www\.ambito\.com" :
-                    {title_selector_index : ["//div[@id=\"contenido\"]//h2[@id=\"tituloDespliegue\"]"],
+                    {title_selector_index : ["//div[@id=\"contenido\"]//h2[@id=\"tituloDespliegue\"]",
+                                            "//main[@id=\"noticia\"]/header//header[@class=\"titulo-noticia\"]/h2"],
                     body_selector_index : ["//div[@id=\"contenido\"]//div[@id=\"textoDespliegue\"]",
-                                            "//div[@id=\"contenido\"]//p[@id=\"textoDespliegue\"]"],
+                                            "//div[@id=\"contenido\"]//p[@id=\"textoDespliegue\"]",
+                                            "//main[@id=\"noticia\"]//article[@class=\"container-fluid despliegue-noticia\"]/p[2]",
+                                            "//main[@id=\"noticia\"]//article[@class=\"container-fluid despliegue-noticia\"]/p[@id=\"cuerpo_noticia\"]//div[@id=\"contenido_data\"]/p"],
                     rss_index : "http://www.ambito.com/rss/noticiasp.asp"}}
