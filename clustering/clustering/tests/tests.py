@@ -2,31 +2,71 @@
 from unittest import TestCase
 from scipy.sparse import dok_matrix
 from math import sqrt
-from clustering_component import KMeansClusteringComponent
+from clustering_component import KMeansClusteringComponent, Cluster
 
 
 class TestClustering(TestCase):
 
     def setUp(self):
-        self._clustering_component = KMeansClusteringComponent()
+        self._clustering_component = KMeansClusteringComponent("data_tests")
+
+    def test_calculate_new_centroid(self):
+        # TODO: terminar de escribir test mas interesantes
+        vec_1 = dok_matrix((1, 2))
+        vec_1[0, 0] = 0
+        vec_1[0, 1] = 0
+        cluster = Cluster("", vec_1, 0, id(vec_1))
+        cluster._update_centroid()
+        centroid = cluster.get_centroid()
+
+        self.assertEqual(centroid.get_vec_rep_length(), 0)
+        result = (centroid.get_vec_rep() - vec_1)
+        col, rows = result.nonzero()
+        self.assertEqual(len(col), 0)
+
+        # Add a new document
+        vec_2 = dok_matrix((1, 2))
+        vec_2[0, 0] = 1
+        vec_2[0, 1] = 1
+        cluster.add_document("", vec_2, sqrt(2))
+        cluster._update_centroid()
+        centroid = cluster.get_centroid()
+
+        # Check length
+        correct_l = sqrt(pow((0 + 1) / 2.0, 2) + pow((0 + 1) / 2.0, 2))
+        self.assertAlmostEqual(centroid.get_vec_rep_length(), correct_l)
+
+        # Check centroid
+        vec_3 = dok_matrix((1, 2))
+        vec_3[0, 0] = (0 + 1) / 2.0
+        vec_3[0, 1] = (0 + 1) / 2.0
+        result = (centroid.get_vec_rep() - vec_3)
+        col, rows = result.nonzero()
+        self.assertEqual(len(col), 0)
+
 
     def test_add_vectors(self):
+        # TODO: como ya tengo otro test hecho para saber si calculo bien el
+        # centroide, aca solo me deberia concentrar en ver si estoy escogiendo
+        # adecuadamente el cluster en donde ubico un nuevo documento.
         vector_1 = dok_matrix((1, 2))
         vector_1[0, 0] = 0
         vector_1[0, 1] = 2
-        l_vector_1 = sqrt(5)
-        self._clustering_component.add_and_cluster_new_document(vector_1)
-        documents = self._clustering_component.get_documents()
+        # TODO: no está bueno el nombre de este método
+        self._clustering_component.add_document("", vector_1, 2.0)
+        clusters = self._clustering_component.get_clusters()
 
         # There is just one cluster...
-        self.assertEqual(len(documents), 1)
+        self.assertEqual(clusters.get_length(), 1)
 
-        # And vector_1 is the centroid of the cluster...
-        for k in documents:
-            centroid, length = documents[k][0]
-            result = (centroid - vector_1)
-            col, rows = result.nonzero()
-            self.assertEqual(len(col), 0)
+        # And vector_1 is in the cluster...
+        for cluster in clusters:
+            for document in cluster:
+                vec_rep = document.get_vec_rep()
+                result = (vec_rep - vector_1)
+                col, rows = result.nonzero()
+                self.assertEqual(len(col), 0)
+
 
         # Add a new vector, which is close enough to conform a cluster with
         # the previous vector.
@@ -34,26 +74,16 @@ class TestClustering(TestCase):
         vector_2[0, 0] = 0
         vector_2[0, 1] = 2
 
-        self._clustering_component.add_and_cluster_new_document(vector_2)
-        self.assertEqual(len(documents), 1)
+        self._clustering_component.add_document("", vector_2, 2.0)
+        self.assertEqual(clusters.get_length(), 1)
 
         # Add a vector that is orthogonal to the previous ones
         vector_3 = dok_matrix((1, 2))
         vector_3[0, 0] = 2
         vector_3[0, 1] = 0
 
-        self._clustering_component.add_and_cluster_new_document(vector_3)
-        self.assertEqual(len(documents), 2)
-
-        # And vector_3 is the centroid of the cluster...
-        vect_3_is_centroid = False
-        for k in documents:
-            centroid, length = documents[k][0]
-            result = (centroid - vector_3)
-            col, rows = result.nonzero()
-            vect_3_is_centroid = (vect_3_is_centroid or len(col) == 0)
-
-        self.assertEqual(vect_3_is_centroid, True)
+        self._clustering_component.add_document("", vector_3, 2.0)
+        self.assertEqual(self._clustering_component.get_clusters_quantity(), 2)
 
     def test_cosine_similarity(self):
         # Different vectors
@@ -74,7 +104,7 @@ class TestClustering(TestCase):
 
         self.assertAlmostEqual(correct_distance, distance)
 
-        # Different and, in particular, orthogonal vectors
+        # Different, and in particular, orthogonal vectors
         v_2[0, 0] = 2.0
         v_2[0, 1] = 0.0
         distance = self._clustering_component._cosine_similarity(v_1, l_v_1,
