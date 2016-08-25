@@ -12,6 +12,45 @@ import pickle
 import pdb
 
 
+class VectRep(dok_matrix):
+
+    def __init__(self, dimensions):
+        self._dimensions = dimensions
+        dok_matrix.__init__(self, (1, dimensions))
+
+    def get_vect_length(self):
+        rows, cols = self.nonzero()
+        summatory = sum([pow(self[pos], 2.0) for pos in zip(rows, cols)])
+        """# TODO: esto se puede escribir en una sola linea
+        for pos in zip(rows, cols):
+            summatory += pow(self[pos], 2.0)"""
+
+        # TODO: hace falta calcular sqrt?
+        return sqrt(summatory)
+
+    def get_dimensions(self):
+        return self._dimensions
+
+    def resize(self, new_dimensions):
+        self._dimensions = new_dimensions
+        dok_matrix.resize(self, (1, new_dimensions))
+
+    def is_equal_to(self, another_vect):
+        ret = self.get_dimensions() == another_vect.get_dimensions()
+
+        if ret:
+            result = (another_vect - self)
+            col, rows = result.nonzero()
+            ret = len(col) == 0
+
+        return ret
+
+    def __getitem__(self, index):
+        return dok_matrix.__getitem__(self, (0, index))
+
+    def __setitem__(self, index, value):
+        return dok_matrix.__setitem__(self, (0, index), value)
+
 class BagOfWordsRep:
 
     def __init__(self, glob_index_file):
@@ -114,7 +153,8 @@ class BagOfWordsRep:
 
         rep = None
         if not waiting_first_articles:
-            rep = dok_matrix((1, self._words_into_corpus))
+            #rep = dok_matrix((1, self._words_into_corpus))
+            rep = VectRep(self._words_into_corpus)
         else:
             # {waiting_first_articles}
             pass
@@ -146,9 +186,11 @@ class BagOfWordsRep:
 
                 # Save the tf.idf calculated, into the corresponding position.
                 if new_word:
-                    rep.resize((1, self._words_into_corpus))
+                    #rep.resize((1, self._words_into_corpus))
+                    rep.resize(self._words_into_corpus)
 
-                rep[0, self._words_dimensions[stem]] = tf_idf
+                #rep[0, self._words_dimensions[stem]] = tf_idf
+                rep[self._words_dimensions[stem]] = tf_idf
 
         return rep
 

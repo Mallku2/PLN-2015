@@ -5,7 +5,7 @@ from scipy.sparse import lil_matrix
 from math import log
 from os import remove
 
-from feature_selection import BagOfWordsRep
+from feature_selection import BagOfWordsRep, VectRep
 
 test_file = "globIndexTests"
 
@@ -112,11 +112,9 @@ class TestBagOfWordsRep(TestCase):
         rep = self._bag_of_words_rep.get_rep(self._test_texts[1],
                                              waiting_first_articles)
 
-        shape = (1, 12)
+        self.assertEqual(rep.get_dimensions(), 12)
 
-        self.assertEqual(rep.shape, shape)
-
-        correct_rep = lil_matrix(shape)
+        correct_rep = VectRep(12)
 
         words_dimensions = self._bag_of_words_rep.get_words_dimensions()
 
@@ -135,46 +133,39 @@ class TestBagOfWordsRep(TestCase):
         """
 
         dim = words_dimensions["demor"]
-        correct_rep[0, dim] = log(0 + 1) * log(2.0 / (1 + 1))  # demor
+        correct_rep[dim] = log(0 + 1) * log(2.0 / (1 + 1))  # demor
 
         dim = words_dimensions["ambul"]
-        correct_rep[0, dim] = log(0 + 1) * log(2.0 / (1 + 1))  # ambul
+        correct_rep[dim] = log(0 + 1) * log(2.0 / (1 + 1))  # ambul
 
         dim = words_dimensions["chic"]
-        correct_rep[0, dim] = log(0 + 1) * log(2.0 / (1 + 1))  # chic
+        correct_rep[dim] = log(0 + 1) * log(2.0 / (1 + 1))  # chic
 
         dim = words_dimensions["traslad"]
-        correct_rep[0, dim] = log(0 + 1) * log(2.0 / (1 + 1))  # traslad
+        correct_rep[dim] = log(0 + 1) * log(2.0 / (1 + 1))  # traslad
 
         dim = words_dimensions["form"]
-        correct_rep[0, dim] = log(0 + 1) * log(2.0 / (1 + 1))  # form
+        correct_rep[dim] = log(0 + 1) * log(2.0 / (1 + 1))  # form
 
         dim = words_dimensions["particul"]
-        correct_rep[0, dim] = log(0 + 1) * log(2.0 / (1 + 1))  # particul
+        correct_rep[dim] = log(0 + 1) * log(2.0 / (1 + 1))  # particul
 
         dim = words_dimensions["hospital"]
-        correct_rep[0, dim] = log(0 + 1) * log(2.0 / (1 + 1))  # hospital
+        correct_rep[dim] = log(0 + 1) * log(2.0 / (1 + 1))  # hospital
 
         dim = words_dimensions["alberdi"]
-        correct_rep[0, dim] = log(0 + 1) * log(2.0 / (1 + 1))  # alberdi
+        correct_rep[dim] = log(0 + 1) * log(2.0 / (1 + 1))  # alberdi
 
         dim = words_dimensions["durant"]
-        correct_rep[0, dim] = log(1 / 4.0 + 1) * log(2.0 / (2 + 1))  # durant
+        correct_rep[dim] = log(1 / 4.0 + 1) * log(2.0 / (2 + 1))  # durant
 
         dim = words_dimensions["tard"]
-        correct_rep[0, dim] = log(1 / 4.0 + 1) * log(2.0 / (2 + 1))  # tard
+        correct_rep[dim] = log(1 / 4.0 + 1) * log(2.0 / (2 + 1))  # tard
 
         dim = words_dimensions["esper"]
-        correct_rep[0, dim] = log(1 / 4.0 + 1) * log(2.0 / (1 + 1))  # esper
+        correct_rep[dim] = log(1 / 4.0 + 1) * log(2.0 / (1 + 1))  # esper
 
         dim = words_dimensions["torment"]
-        correct_rep[0, dim] = log(1 / 4.0 + 1) * log(2.0 / (1 + 1))  # torment
+        correct_rep[dim] = log(1 / 4.0 + 1) * log(2.0 / (1 + 1))  # torment
 
-        cols, rows = correct_rep.nonzero()
-        pos_a = zip(cols, rows)
-
-        cols, rows = rep.nonzero()
-        pos_b = zip(cols, rows)
-
-        for pos in pos_a:
-            self.assertEqual(correct_rep[pos], rep[pos])
+        self.assertTrue(correct_rep.is_equal_to(rep))
