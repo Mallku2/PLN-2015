@@ -4,11 +4,7 @@ import pickle
 from math import sqrt
 
 
-# TODO: abstraer Centroid!. O puede ser un caso especial de la instancia
-# Document?
 # TODO: hara falta tambien guardar aquí la longitud del vector?
-# TODO: a los fines de debugging,  me resulta conveniente que los documentos
-# tengan referencias al cluster al que pertenecen...
 class Document(object):
     def __init__(self, text, vec_rep, vec_rep_length):
         assert(isinstance(vec_rep, dok_matrix))
@@ -65,6 +61,20 @@ class Cluster(object):
     def set_centroid(self, cent_vect_rep, cent_length):
         self._centroid = Document("", cent_vec_rep, cent_length)
 
+    def is_in_cluster(self, doc_vec_rep):
+        # TODO: solo me interesa preguntar por la representación vectorial?
+        ret = None
+
+        for doc_in_clstr in self._documents:
+            result = (doc_in_clstr.get_vec_rep() - doc_vec_rep)
+            col, rows = result.nonzero()
+            ret = len(col) == 0
+
+            if ret:
+                break
+
+        return ret
+
     def _update_centroid(self):
         new_centroid = dok_matrix((1, 1))
         centroid_dimensions = 1
@@ -114,8 +124,6 @@ class Clusters(object):
             # Dictionary of the form:
             # {centro_id X (centroid_data, set of (article_vec_rep, article)}.
             self._clusters = pickle.load(self._data_file)
-            # Dictionary of the form {centro_id X (centroid, centroid_length)}
-            self._centroids = pickle.load(self._data_file)
             # Set of links to the articles.
             self._scraped_news = pickle.load(self._data_file)
             # Dictionary of the form {link to main article X time of the last
@@ -127,7 +135,6 @@ class Clusters(object):
         else:
             # {_data_file.tell() == 0}
             self._clusters = {}
-            self._centroids = {}
             self._scraped_news = set()
             self._time_last_article_added = {}
 
@@ -163,7 +170,6 @@ class Clusters(object):
 
     def __del__(self):
         pickle.dump(self._clusters, self._data_file)
-        pickle.dump(self._centroids, self._data_file)
         pickle.dump(self._scraped_news, self._data_file)
         pickle.dump(self._time_last_article_added, self._data_file)
         self._data_file.close()
