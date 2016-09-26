@@ -8,6 +8,7 @@ from main.items import MainItem
 from clustering.spider_utilities import selectors
 from clustering.spider_utilities import common_utilities
 
+
 class MainSpider(scrapy.Spider):
     name = "main_spider"
     # Extract the links to the rss service or each site
@@ -31,18 +32,21 @@ class MainSpider(scrapy.Spider):
 
     def parse(self, response):
         """Obtains the rss from a given news site (defined in start_urls).
-            Parses it, and constructs the apropiate request for each article's link found.
+        Parses it, and constructs the apropiate request for each article's
+        link found.
         """
         self._log.write("Ya estamos en parse...")
         # TODO: posiblemente vamos a tener que limitarnos a tomar el rss de
-        # cada diario (pensar en el caso de la nación: todos los días la portada
-        # se ve diferente). Y sólo para casos específicos, leer el html del
-        # portal (como pagina12, que no parece diferir mucho entre dia y dia)
+        # cada diario (pensar en el caso de la nación: todos los días la
+        # portada se ve diferente). Y sólo para casos específicos, leer el html
+        # del portal (como pagina12, que no parece diferir mucho entre dia y
+        # dia)
 
-        # TODO: estaría bueno guardar el xml obtenido, por cuestiones de debugging.
+        # TODO: estaría bueno guardar el xml obtenido, por cuestiones de
+        # debugging.
         # El tema es que debería poder saber el sitio que estoy consultando,
-        # para guardar un xml con el nombre adecuado. Podríamos tratar de ver cual es
-        # el método que llama a parse, para poder meter información en la request
+        # para guardar un xml con el nombre adecuado. Podríamos tratar de ver
+        # cual es el método que llama a parse, para poder meter información en la request
         # sobre el sitio consultado
         requests = []
         rss = response.body
@@ -55,7 +59,8 @@ class MainSpider(scrapy.Spider):
         for item in rss_tree.entries:
             # Extract the main article.
             link = item.link
-            req = common_utilities.generate_appr_request(link, self.parse_article)
+            req = common_utilities.generate_appr_request(link,
+                                                         self.parse_article)
             if req:
                 # Save its url (not resolved yet).
                 req.meta["original_link"] = link
@@ -78,22 +83,29 @@ class MainSpider(scrapy.Spider):
 
         if resolved_link not in self._scraped_news:
             # Title
-            title = common_utilities.extract_element(response, selectors.title_selector_index)
+            title = common_utilities.extract_element(response,
+                                                     selectors.
+                                                     title_selector_index)
             if title:
-                #item["title"] = text
+                item["title"] = title
                 # Body
-                body = common_utilities.extract_element(response, selectors.body_selector_index)
+                body = common_utilities.extract_element(response,
+                                                        selectors.
+                                                        body_selector_index)
                 if body:
                     item["content"] = title + "\n" + body
                     item["article_scraped"] = True
                 else:
                     # {not body}
-                    item["reason_not_scraped"] = 1 # Problem with body's selector
+                    # Problem with body's selector
+                    item["reason_not_scraped"] = 1
             else:
                 # {not title}
-                item["reason_not_scraped"] = 2 # Problem with title's selector
+                # Problem with title's selector
+                item["reason_not_scraped"] = 2
         else:
             # {resolved_link in self._scraped_news}
-            item["reason_not_scraped"] = 3 # resolved_link already in self._scraped_news
+            # resolved_link already in self._scraped_news
+            item["reason_not_scraped"] = 3
 
         return item
