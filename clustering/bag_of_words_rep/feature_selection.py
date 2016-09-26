@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from math import log
+import time
+import sys
+from threading import Thread
+from math import log, sqrt
 # TODO: por ahora, utilizamos la implementación de nltk del algoritmo de
 # stemming de Porter.
 from nltk.stem import SnowballStemmer
@@ -15,18 +18,25 @@ import pdb
 class VectRep(dok_matrix):
 
     def __init__(self, dimensions):
-        self._dimensions = dimensions
         dok_matrix.__init__(self, (1, dimensions))
+        self._dimensions = dimensions
+        self._length = None
 
-    def get_vect_length(self):
-        rows, cols = self.nonzero()
-        summatory = sum([pow(self[pos], 2.0) for pos in zip(rows, cols)])
-        """# TODO: esto se puede escribir en una sola linea
-        for pos in zip(rows, cols):
-            summatory += pow(self[pos], 2.0)"""
+    def nonzero(self):
+        rows, cols = dok_matrix.nonzero(self)
+
+        return cols
+
+    def set_length(self, length):
+        self._length = length
+
+    def get_length(self):
+        """cols = self.nonzero()
+        summatory = sum([pow(self[pos], 2.0) for pos in cols])
 
         # TODO: hace falta calcular sqrt?
-        return sqrt(summatory)
+        return sqrt(summatory)"""
+        return self._length
 
     def get_dimensions(self):
         return self._dimensions
@@ -40,8 +50,9 @@ class VectRep(dok_matrix):
 
         if ret:
             result = (another_vect - self)
-            col, rows = result.nonzero()
-            ret = len(col) == 0
+            # NOTE: we do this to avoid the redefinition of substraction...
+            cols, rows = dok_matrix.nonzero(result)
+            ret = len(cols) == 0
 
         return ret
 
@@ -49,11 +60,12 @@ class VectRep(dok_matrix):
         return dok_matrix.__getitem__(self, (0, index))
 
     def __setitem__(self, index, value):
-        return dok_matrix.__setitem__(self, (0, index), value)
+        dok_matrix.__setitem__(self, (0, index), value)
+
 
 class BagOfWordsRep:
 
-    def __init__(self, glob_index_file):
+    def __init__(self, glob_index_file_name):
         # Tokenizer
         # TODO: por alguna razón, usando esta primera versión del patrón, el
         # tokenizador no opera bien. Tenemos que agregarle el indicador
@@ -93,14 +105,15 @@ class BagOfWordsRep:
         stop_words_file.close()
 
         # Global index.
-        self._glob_indx_file = open(glob_index_file, "r+b")
-        # {Word x frequency in the whole corpus}
+        self._glob_indx_file = open(glob_index_file_name, "r+b")
+        # {Word x frequency in the whole collection}
         self._doc_freq = pickle.load(self._glob_indx_file)
-        self._corpus_size = pickle.load(self._glob_indx_file)
+        self._collection_size = pickle.load(self._glob_indx_file)
         # TODO: no me gusta el nombre, y tampoco estoy seguro de que haga falta
         # mantenerlo en el archivo, ya que lo puedo calcular cada vez que
         # levando _doc_freq
-        self._words_into_corpus = pickle.load(self._glob_indx_file)
+        # TODO:
+        self._amount_words_into_collection = pickle.load(self._glob_indx_file)
         # {Word x position of the word (dimension) into the sparse vector that
         # represents each document}
         self._words_dimensions = pickle.load(self._glob_indx_file)
@@ -131,18 +144,14 @@ class BagOfWordsRep:
 
         return text_stems
 
-    def get_rep(self, text, waiting_first_articles):
+    def get_rep(self, text):
         """Returns the vectorial representation of the received text, using the
         TF-IDF weighting.
         PARAMS
         text : A string. The text to be vectorized.
 
-        waiting_first_articles : A boolean. Indicates if we are waiting for an
-         initial determined amount of documents, before computing the TF-IDF
-         weighting.
-
         RETURNS
-        An instance of dok_matrix.
+        An instance of VectRep.
         """
 
         # TODO: cambiar el nombree de esta variable
@@ -151,62 +160,68 @@ class BagOfWordsRep:
 
         stems_set = set(text_stems)
 
-        rep = None
-        if not waiting_first_articles:
-            #rep = dok_matrix((1, self._words_into_corpus))
-            rep = VectRep(self._words_into_corpus)
-        else:
-            # {waiting_first_articles}
-            pass
-            # TODO:?
+        rep = VectRep(self._amount_words_into_collection)
 
-        new_corpus_size = self._corpus_size + 1
+        new_collection_size = self._collection_size + 1
+        summ = 0.0
         for stem in stems_set:
             raw_freq = text_stems.count(stem)
 
             # Update global index
-            new_word = self._update_global_index(stem, raw_freq,
-                                                 new_corpus_size)
+            new_word = self._update_global_index_with_word(stem, raw_freq,
+                                                 new_collection_size)
 
-            if not waiting_first_articles:
-                tf = log(raw_freq / l_text_stems + 1)
-                # TODO: esto está mal: ver
-                # https://en.wikipedia.org/wiki/Tf%E2%80%93idf
-                # IDF es la inversa de la frecuencia con la que un término
-                # aparece en la colección de documentos!...
-                # TODO: de acuerdo a https://www.youtube.com/watch?v=hXNbFNCgPfY
-                # en tf se tiene en cuenta realmente la frecuencia: es decir,
-                # se divide raw_freq por la cantidad de términos del documento
-                # TODO: no queda claro si debo utiliza document frequency o
-                # collection frequency. Voy a dejar implementado esto así,
-                # y veré si con experimentación y/o nueva docu queda claro
-                # como hacerlo.
-                idf = log(new_corpus_size / float(self._doc_freq[stem] + 1))
-                tf_idf = tf * idf
+            tf = log(raw_freq / l_text_stems + 1)
+            # TODO: esto está mal: ver
+            # https://en.wikipedia.org/wiki/Tf%E2%80%93idf
+            # IDF es la inversa de la frecuencia con la que un término
+            # aparece en la colección de documentos!...
+            # TODO: de acuerdo a https://www.youtube.com/watch?v=hXNbFNCgPfY
+            # en tf se tiene en cuenta realmente la frecuencia: es decir,
+            # se divide raw_freq por la cantidad de términos del documento
+            # TODO: no queda claro si debo utiliza document frequency o
+            # collection frequency. Voy a dejar implementado esto así,
+            # y veré si con experimentación y/o nueva docu queda claro
+            # como hacerlo.
+            idf = log(new_collection_size / float(self._doc_freq[stem] + 1))
+            tf_idf = tf * idf
 
-                # Save the tf.idf calculated, into the corresponding position.
-                if new_word:
-                    #rep.resize((1, self._words_into_corpus))
-                    rep.resize(self._words_into_corpus)
+            # Save the tf.idf calculated, into the corresponding position.
+            if new_word:
+                rep.resize(self._amount_words_into_collection)
 
-                #rep[0, self._words_dimensions[stem]] = tf_idf
-                rep[self._words_dimensions[stem]] = tf_idf
+            rep[self._words_dimensions[stem]] = tf_idf
+            summ += pow(tf_idf, 2.0)
+
+        rep.set_length(sqrt(summ))
 
         return rep
 
-    def _update_global_index(self, word, doc_count, new_corpus_size):
+    def update_global_index_with_text(self, text):
+        text_stems = self._prepare_text(text)
+
+        stems_set = set(text_stems)
+
+        for stem in stems_set:
+            raw_freq = text_stems.count(stem)
+
+            # Update global index
+            new_word = self._update_global_index_with_word(stem, raw_freq,
+                                                 self._collection_size + 1)
+
+    def _update_global_index_with_word(self, word, doc_count, new_collection_size):
         """Updates the global index:
             * the document frequency of the given word.
             * if the word is new, assigns to it a number that refers to the
             dimension that it represents in the vector space representation of
             a text.
-            * sets the new corpus size.
+            * sets the new collection size.
 
             PARAMS
             word: the stemmed version of a word.
             doc_count: the number of occurrences of the given word in the
             document being analyzed.
-            news_corpus_size:
+            news_collection_size:
 
             RETURNS
             A boolean indicating if the word was already present in the global
@@ -233,11 +248,11 @@ class BagOfWordsRep:
         else:
             # {not word in self._doc_freq}
             self._doc_freq[word] = doc_count
-            self._words_dimensions[word] = self._words_into_corpus
-            self._words_into_corpus += 1
+            self._words_dimensions[word] = self._amount_words_into_collection
+            self._amount_words_into_collection += 1
             new_word = True
 
-        self._corpus_size = new_corpus_size
+        self._collection_size = new_collection_size
 
         return new_word
 
@@ -245,21 +260,93 @@ class BagOfWordsRep:
         return self._doc_freq
 
     # TODO: no deberia ser algo como collection size?
-    def get_corpus_size(self):
-        return self._corpus_size
+    def get_collection_size(self):
+        return self._collection_size
 
-    def get_words_into_corpus(self):
-        return self._words_into_corpus
+    def get_amount_words_into_collection(self):
+        return self._amount_words_into_collection
 
     def get_words_dimensions(self):
         return self._words_dimensions
 
     def __del__(self):
         pickle.dump(self._doc_freq, self._glob_indx_file)
-        pickle.dump(self._corpus_size, self._glob_indx_file)
-        pickle.dump(self._words_into_corpus, self._glob_indx_file)
+        pickle.dump(self._collection_size, self._glob_indx_file)
+        pickle.dump(self._amount_words_into_collection, self._glob_indx_file)
         pickle.dump(self._words_dimensions, self._glob_indx_file)
         self._glob_indx_file.close()
+
+
+# TODO: primera implementación de un hilo consumidor de vectores, desde
+# una cola thread-safe
+class ThreadedBagOfWordsRep(Thread):
+    def __init__(self, articles_queue, vect_rep_queue, glob_index_file_name,
+                 sentinel_value):
+        """
+        PARAMS
+
+        queue : an instance of Queue
+                (https://docs.python.org/3.5/library/queue.html)
+        """
+        self._articles_queue = articles_queue
+        self._vect_rep_queue = vect_rep_queue
+        self._bag_of_words_rep = BagOfWordsRep(glob_index_file_name)
+        self._articles_processed = 0
+        self._first_articles = []
+        self._first_articles_processed = False
+        self._articles_available = True
+        self._sentinel_value = sentinel_value
+        Thread.__init__(self)
+
+    def run(self):
+        articles_processed = 1
+        while self._articles_available:
+            # Block until an element is available in the queue
+            url_news, title, body = self._articles_queue.get(block=True)
+
+            # Check for the sentinel value
+            if url_news != self._sentinel_value:
+                text = title + "\n" + body
+
+                if self._articles_processed < 70:
+                    # Just update the global index
+                    self._bag_of_words_rep.update_global_index_with_text(text)
+                    self._articles_processed += 1
+                    self._first_articles.append((url_news, text))
+                else:
+                    # {self._articles_processed >= 70}
+                    if not self._first_articles_processed:
+                        # Proceed to cluster the first articles
+                        for data in self._first_articles:
+                            url_article, text_article = data
+
+                            vect_rep = self._bag_of_words_rep.\
+                                get_rep(text_article)
+
+                            self._vect_rep_queue.put((url_article,
+                                                      text_article,
+                                                      vect_rep))
+                            sys.stdout.write("\rBagOfWords - articles processed:%d%%" % articles_processed)
+                            sys.stdout.flush()
+                            articles_processed += 1
+
+                        self._first_articles_processed = True
+
+                    else:
+                        # {self._first_articles_processed}
+                        vect_rep = self._bag_of_words_rep.get_rep(text)
+                        self._vect_rep_queue.put((url_news, text, vect_rep))
+                        sys.stdout.write("\rBagOfWords - articles processed:%d" % articles_processed)
+                        sys.stdout.flush()
+                        articles_processed += 1
+            else:
+                # {url_news == self._sentinel}
+                self._articles_available = False
+                # Inform of this situation to the thread on the other side
+                # of the queue
+                self._vect_rep_queue.put((self._sentinel_value,
+                                          self._sentinel_value,
+                                          self._sentinel_value))
 
 if __name__ == "__main__":
     obj = BagOfWordsRep()
