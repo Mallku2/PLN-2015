@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import cPickle
+import pickle
 import time
 import pdb # TODO: eliminar
 
@@ -7,22 +7,30 @@ class NewsScraperPipeline(object):
 
     def __init__(self):
         # TODO: cambiar el nombre de este archivo...
-        self._data_file = open("news.data", "ri+")
+        self._data_file = open("news.data", "r+b")
         self._log = open("log", "a+")
+        self._log.write("\n-------------------------\n")
+        self._log.write("Abriendo araña...\n")
         # For debugging...
         self._new_articles_added = False
         # Determine if the file contains data.
-        self._data_file.seek(0, 2) # Move file's pointer to its end.
-        if self._data_file.tell() > 0:
+        self._data_file.seek(0, 2)  # Move file's pointer to its end.
+        file_size = self._data_file.tell()
+        if file_size > 0:
             self._data_file.seek(0)
             # There should be a dictionary and a set, saved into _data_file.
             # Dictionary of the form {link X set of articles}.
-            self._corpus = cPickle.load(self._data_file)
+            self._corpus = pickle.load(self._data_file)
             # Set of links to the articles.
-            self._scraped_news = cPickle.load(self._data_file)
+            self._scraped_news = pickle.load(self._data_file)
             # Erase data.
             self._data_file.seek(0)
             self._data_file.truncate()
+            # Backup
+            backup_file = open("news.data.backup." + str(file_size), "wb")
+            pickle.dump(self._corpus, backup_file)
+            pickle.dump(self._scraped_news, backup_file)
+            backup_file.close()
         else:
             # {_data_file.tell() == 0}
             self._corpus = {}
@@ -49,7 +57,7 @@ class NewsScraperPipeline(object):
             reason_not_scraped = item["reason_not_scraped"]
             if reason_not_scraped != 3:
                 self._write_error_to_log(item["resolved_link"],
-                                        item["reason_not_scraped"])
+                                         item["reason_not_scraped"])
 
         return item
 
@@ -72,19 +80,19 @@ class NewsScraperPipeline(object):
         title = item["title"]
         body = item["body"]
         self._corpus[cluster_id][resolved_link] = (title,
-                                                    body)
+                                                   body)
 
         # TODO: realmente hace falta todo el item?
         self._scraped_news[resolved_link] = (item["cid"],
-                                            title,
-                                            body)
+                                             title,
+                                             body)
 
         # For debugging...
         self._new_articles_added = True
 
     def close_spider(self, spider):
-        cPickle.dump(self._corpus, self._data_file)
-        cPickle.dump(self._scraped_news, self._data_file)
+        pickle.dump(self._corpus, self._data_file)
+        pickle.dump(self._scraped_news, self._data_file)
         # For debugging...
         if self._new_articles_added:
             rss = spider.get_rss()
@@ -94,4 +102,5 @@ class NewsScraperPipeline(object):
             rss_file.close()
 
         self._data_file.close()
+        self._log.write("Cerrando araña...")
         self._log.close()
