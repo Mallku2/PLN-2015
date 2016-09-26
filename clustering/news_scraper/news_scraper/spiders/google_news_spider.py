@@ -107,23 +107,26 @@ class GoogleNewsSpider(scrapy.Spider):
 
         if resolved_link not in self._scraped_news:
             # Title
-            text = common_utilities.extract_element(response, title_selector_index)
+            text = common_utilities.extract_element(response,
+                                                    title_selector_index)
             if text:
                 item["title"] = text
 
                 # Body
-                text = common_utilities.extract_element(response, body_selector_index)
+                text = common_utilities.extract_element(response,
+                                                        body_selector_index)
                 if text:
                     item["body"] = text
                     item["article_scraped"] = True
                 else:
                     # {not text}
-                    item["reason_not_scraped"] = 1 # Problem with body's selector
+                    # Problem with body's selector
+                    item["reason_not_scraped"] = 1
             else:
                 # {not text}
-                item["reason_not_scraped"] = 2 # Problem with title's selector
+                item["reason_not_scraped"] = 2  # Problem with title's selector
         else:
             # {resolved_link in self._scraped_news}
-            item["reason_not_scraped"] = 3 # resolved_link already in self._scraped_news
+            item["reason_not_scraped"] = 3  # resolved_link already in self._scraped_news
 
         return item
