@@ -16,8 +16,8 @@ class TestBagOfWordsRep(TestCase):
         glob_index = open(test_file, "wb")
         # Set an empty global index
         pickle.dump({}, glob_index)  # Words' freq
-        pickle.dump(0, glob_index)  # Corpus size
-        pickle.dump(0, glob_index)  # Words into corpus
+        pickle.dump(0, glob_index)  # collection size
+        pickle.dump(0, glob_index)  # Words into collection
         pickle.dump({}, glob_index)  # Words' dimensions
         glob_index.close()
 
@@ -55,62 +55,57 @@ class TestBagOfWordsRep(TestCase):
 
     def test_update_global_index(self):
         # Word: "hospital"
-        self._bag_of_words_rep._update_global_index("hospital", 10, 1)
+        self._bag_of_words_rep._update_global_index_with_word("hospital", 10, 1)
 
         doc_freq = self._bag_of_words_rep.get_doc_freq()
         self.assertEqual({"hospital": 10}, doc_freq)
 
-        corpus_size = self._bag_of_words_rep.get_corpus_size()
-        self.assertEqual(1, corpus_size)
+        collection_size = self._bag_of_words_rep.get_collection_size()
+        self.assertEqual(1, collection_size)
 
-        words_into_corpus = self._bag_of_words_rep.get_words_into_corpus()
-        self.assertEqual(1, words_into_corpus)
+        words_into_collection = self._bag_of_words_rep.get_amount_words_into_collection()
+        self.assertEqual(1, words_into_collection)
 
         words_dimensions = self._bag_of_words_rep.get_words_dimensions()
         self.assertEqual({"hospital": 0}, words_dimensions)
 
         # Word: "alberdi"
-        self._bag_of_words_rep._update_global_index("alberdi", 5, 2)
+        self._bag_of_words_rep._update_global_index_with_word("alberdi", 5, 2)
 
         self.assertEqual({"hospital": 10.0, "alberdi": 5.0},
                          doc_freq)
 
-        corpus_size = self._bag_of_words_rep.get_corpus_size()
-        self.assertEqual(2, corpus_size)
+        collection_size = self._bag_of_words_rep.get_collection_size()
+        self.assertEqual(2, collection_size)
 
-        words_into_corpus = self._bag_of_words_rep.get_words_into_corpus()
-        self.assertEqual(2, words_into_corpus)
+        words_into_collection = self._bag_of_words_rep.get_amount_words_into_collection()
+        self.assertEqual(2, words_into_collection)
 
         self.assertEqual({"hospital": 0, "alberdi": 1},
                          words_dimensions)
 
         # Word: "alberdi", again...
-        self._bag_of_words_rep._update_global_index("alberdi", 5, 3)
+        self._bag_of_words_rep._update_global_index_with_word("alberdi", 5, 3)
 
         self.assertEqual({"hospital": 10.0, "alberdi": 10.0},
                          doc_freq)
 
-        corpus_size = self._bag_of_words_rep.get_corpus_size()
-        self.assertEqual(3, corpus_size)
+        collection_size = self._bag_of_words_rep.get_collection_size()
+        self.assertEqual(3, collection_size)
 
-        words_into_corpus = self._bag_of_words_rep.get_words_into_corpus()
-        self.assertEqual(2, words_into_corpus)
+        words_into_collection = self._bag_of_words_rep.\
+            get_amount_words_into_collection()
+
+        self.assertEqual(2, words_into_collection)
 
         self.assertEqual({"hospital": 0, "alberdi": 1},
                          words_dimensions)
 
     def test_representation(self):
-        waiting_first_articles = True
-        rep = self._bag_of_words_rep.get_rep(self._test_texts[0],
-                                             waiting_first_articles)
+        rep = self._bag_of_words_rep.get_rep(self._test_texts[0])
+        self.assertEqual(rep.get_dimensions(), 10)
 
-        # TODO: batch?
-        # We are waiting for the first batch of articles. rep is None
-        self.assertIsNone(rep)
-
-        waiting_first_articles = False
-        rep = self._bag_of_words_rep.get_rep(self._test_texts[1],
-                                             waiting_first_articles)
+        rep = self._bag_of_words_rep.get_rep(self._test_texts[1])
 
         self.assertEqual(rep.get_dimensions(), 12)
 
