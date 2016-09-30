@@ -56,7 +56,7 @@ class HMM:
 
         y -- tagging.
         """
-        context = tuple((self._n-1)*HMM.beginning_symbol)
+        context = tuple((self._n - 1) * HMM.beginning_symbol)
         y_extended = tuple(y + HMM.stop_symbol)
         prob = 1.0
 
@@ -89,7 +89,7 @@ class HMM:
 
         y -- tagging.
         """
-        context = tuple((self._n-1)*HMM.beginning_symbol)
+        context = tuple((self._n - 1) * HMM.beginning_symbol)
         y_extended = tuple(y + HMM.stop_symbol)
         prob = 0.0
 
@@ -121,6 +121,7 @@ class HMM:
 
         sent -- the sentence.
         """
+        # TODO: por qué tagger no es un atributo de la instancia???...
         tagger = ViterbiTagger(self)
         return tagger.tag(self)
 
@@ -142,7 +143,8 @@ class ViterbiTagger:
         # Initialization.
         self._pi = {}
         self._pi[0] = {}
-        self._pi[0][tuple((self._hmm._n-1)*HMM.beginning_symbol)] = (0.0, [])
+        self._pi[0][tuple((self._hmm._n-1)*HMM.beginning_symbol)] = (log2(1.0),
+                                                                     [])
 
         m = len(sent)
         for k in range(1, m+1):
