@@ -83,6 +83,84 @@ class TestViterbiTagger(TestCase):
 
         self.assertEqual(y, 'D N V'.split())
 
+    def test_tag_unigrams(self):
+        tagset = {'D', 'N', 'V'}
+        trans = {
+            (): {'D': 0.25, 'N': 0.25, 'V': 0.25, '</s>': 0.25},
+        }
+        out = {
+            'D': {'the': 1.0},
+            'N': {'dog': 0.4, 'barks': 0.6},
+            'V': {'dog': 0.1, 'barks': 0.9},
+        }
+        hmm = HMM(1, tagset, trans, out)
+        tagger = ViterbiTagger(hmm)
+
+        x = 'the dog barks'.split()
+        y = tagger.tag(x)
+
+        pi = {
+            0: {
+                (): (log2(1.0), []),
+            },
+            1: {
+                ('D',): (log2(1.0 * 1.0 * 0.25), ['D']),
+            },
+            2: {
+                ('N',): (log2(1.0 * 1.0 * 0.25 * 0.4 * 0.25), ['D', 'N']),
+                ('V',): (log2(1.0 * 1.0 * 0.25 * 0.1 * 0.25), ['D', 'V']),
+            },
+            3: {
+                ('N',): (log2(1.0 * 1.0 * 0.25 * 0.4 * 0.25 * 0.6 * 0.25),
+                             ['D', 'N', 'N']),
+                ('V',): (log2(1.0 * 1.0 * 0.25 * 0.4 * 0.25 * 0.9 * 0.25),
+                             ['D', 'N', 'V']),
+            }
+        }
+        self.assertEqualPi(tagger._pi, pi)
+
+        self.assertEqual(y, 'D N V'.split())
+
+    def test_tag_bigrams(self):
+        tagset = {'D', 'N', 'V'}
+        trans = {
+            ('<s>',): {'D': 1.0},
+            ('D',): {'N': 1.0},
+            ('N',): {'V': 0.8, 'N': 0.2},
+            ('V',): {'</s>': 1.0},
+        }
+        out = {
+            'D': {'the': 1.0},
+            'N': {'dog': 0.4, 'barks': 0.6},
+            'V': {'dog': 0.1, 'barks': 0.9},
+        }
+        hmm = HMM(2, tagset, trans, out)
+        tagger = ViterbiTagger(hmm)
+
+        x = 'the dog barks'.split()
+        y = tagger.tag(x)
+
+        pi = {
+            0: {
+                ('<s>',): (log2(1.0), []),
+            },
+            1: {
+                ('D',): (log2(1.0 * 1.0 * 1.0), ['D']),
+            },
+            2: {
+                ('N',): (log2(1.0 * 1.0 * 1.0 * 0.4 * 1.0), ['D', 'N']),
+            },
+            3: {
+                ('N',): (log2(1.0 * 1.0 * 1.0 * 0.4 * 1.0 * 0.6 * 0.2),
+                             ['D', 'N', 'N']),
+                ('V',): (log2(1.0 * 1.0 * 1.0 * 0.4 * 1.0 * 0.9 * 0.8),
+                             ['D', 'N', 'V']),
+            }
+        }
+        self.assertEqualPi(tagger._pi, pi)
+
+        self.assertEqual(y, 'D N V'.split())
+
     def assertEqualPi(self, pi1, pi2):
         self.assertEqual(set(pi1.keys()), set(pi2.keys()))
 
