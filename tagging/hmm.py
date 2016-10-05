@@ -31,6 +31,9 @@ class HMM:
         """
         ret = 0.0
 
+        if self._n == 1:
+            prev_tags = ()
+
         if prev_tags in self._trans and tag in self._trans[prev_tags]:
             ret = self._trans[prev_tags][tag]
 
@@ -78,7 +81,6 @@ class HMM:
         o_prob = 1.0
         tagging_prob = self.tag_prob(y)
 
-        i = 0
         for i in range(len(x)):
             o_prob *= self.out_prob(x[i], y[i])
 
@@ -141,51 +143,45 @@ class ViterbiTagger:
         sent -- the sentence.
         """
         # Initialization.
-        self._pi = {}
-        self._pi[0] = {}
-        self._pi[0][tuple((self._hmm._n-1)*HMM.beginning_symbol)] = (log2(1.0),
-                                                                     [])
-
+        n = self._hmm._n
+        self._pi = {0: {tuple((n-1) * HMM.beginning_symbol): (log2(1.0), [])}}
         m = len(sent)
+
         for k in range(1, m+1):
-            self._pi[k] = {}
+            self._pi[k] = pi_k = {}
             # Search for any tag with out_prob > 0.
             for v in self._hmm.tagset():
                 o_prob = self._hmm.out_prob(sent[k-1], v)
                 if o_prob > 0.0:
                     # Search for previous tags with trans_prob > 0.
                     for prev_tags in self._pi[k-1]:
-                        if self._hmm._n > 1:
-                            t_prob = self._hmm.trans_prob(v, prev_tags)
-                        else:
-                            t_prob = self._hmm.trans_prob(v, ())
+                        t_prob = self._hmm.trans_prob(v, prev_tags)
+
                         if t_prob > 0.0:
-                            prob = self._pi[k-1][prev_tags][0] + \
-                                log2(t_prob) + log2(o_prob)
+                            prev_prob, prev_tagging = self._pi[k-1][prev_tags]
+
+                            prob = prev_prob + log2(t_prob) + log2(o_prob)
 
                             tags = prev_tags[1:] + (v,)
 
-                            if tags not in self._pi[k] or prob > self._pi[k][tags][0]:
+                            if tags not in pi_k or prob > pi_k[tags][0]:
                                 # New item or new max. prob. found.
-                                self._pi[k][tags] = (prob,
-                                                     self._pi[k-1]
-                                                     [prev_tags][1] + [v])
+                                pi_k[tags] = (prob, prev_tagging + [v])
 
         # Extract the best tagging.
         max_prob = float('-inf')
         max_tag = None
+        pi_m = self._pi[m]
+        for context in pi_m:
+            t_prob = self._hmm.trans_prob(HMM.stop_symbol[0], context)
 
-        for context in self._pi[m]:
-            if self._hmm._n > 1:
-                t_prob = self._hmm.trans_prob(HMM.stop_symbol[0], context)
-            else:
-                t_prob = self._hmm.trans_prob(HMM.stop_symbol[0], ())
             if t_prob > 0.0:
-                prob = self._pi[m][context][0] + log2(t_prob)
+                prev_prob, prev_tagging = pi_m[context]
+                prob = prev_prob + log2(t_prob)
 
                 if max_prob < prob:
                     max_prob = prob
-                    max_tag = self._pi[m][context][1]
+                    max_tag = prev_tagging
 
         return max_tag
 
@@ -198,8 +194,11 @@ class MLHMM(HMM):
         addone -- whether to use addone smoothing (default: True).
         """
         self._n = n
-        self._tags_counts = defaultdict(int)
-        self._tagged_words_counts = defaultdict(int)
+        # we use float as the default factory, to count in floats, to
+        # avoid having to cast to float each time we compute a prob.
+        # using this counts
+        self._tags_counts = defaultdict(float)
+        self._tagged_words_counts = defaultdict(float)
         self._tagset = set()
         self._words = set()
         self._len_words = 0.0
@@ -210,8 +209,9 @@ class MLHMM(HMM):
             tags = []
             # Count of words and tags.
             for tagged_word in sent:
-                self._tagged_words_counts[tagged_word] += 1
-                self._words.add(tagged_word[0])
+                self._tagged_words_counts[tagged_word] += 1.0
+                word = tagged_word[0]
+                self._words.add(word)
                 tag = tagged_word[1]
                 self._tagset.add(tag)
                 tags.append(tag)
@@ -219,18 +219,21 @@ class MLHMM(HMM):
                     # We also need the counting of the occurrences of each
                     # tag. If n > 2 => in the next loop, when counting n and
                     # n-1 grams, the counting of each tag will not be done.
+                    # TODO: pero cuando contamos bigramas, no estamos
+                    # contando 2 veces este tag?
                     self._tags_counts[(tag,)] += 1
 
             tags_extended = (n-1)*HMM.beginning_symbol + tags + HMM.stop_symbol
 
             for i in range(len(tags_extended) - n + 1):
                 ngram = tuple(tags_extended[i: i + n])
-                self._tags_counts[ngram] += 1
-                self._tags_counts[ngram[:-1]] += 1
+                self._tags_counts[ngram] += 1.0
+                self._tags_counts[ngram[:-1]] += 1.0
 
         self._len_words = len(self._words)
 
-        # Convert defaultdicts to dicts, to avoid errors.
+        # Convert defaultdicts to dicts, to avoid errors (when indexing
+        # with an non-existing key).
         self._tags_counts = dict(self._tags_counts)
         self._tagged_words_counts = dict(self._tagged_words_counts)
 
@@ -266,8 +269,7 @@ class MLHMM(HMM):
         else:
             # {not self._addone}
             if prev_tags in self._tags_counts:
-                ret = self.tcount(prev_tags + (tag,)) / \
-                    float(self.tcount(prev_tags))
+                ret = self.tcount(prev_tags + (tag,)) / self.tcount(prev_tags)
 
         return ret
 
@@ -284,7 +286,7 @@ class MLHMM(HMM):
             # {not self.unknown(word) and self.tcount((tag,)) != 0}
             if (word, tag) in self._tagged_words_counts:
                 ret = self._tagged_words_counts[(word, tag)] / \
-                    float(self.tcount((tag,)))
+                      self.tcount((tag,))
             else:
                 ret = 0.0
 

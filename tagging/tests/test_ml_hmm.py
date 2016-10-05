@@ -27,6 +27,9 @@ class TestMLHMM(TestCase):
             ('P',): 2,
             ('</s>',): 2,
         }
+
+        self.assertEqual(len(tcount), len(hmm._tags_counts))
+
         for gram, c in tcount.items():
             self.assertEqual(hmm.tcount(gram), c, gram)
 
@@ -63,16 +66,21 @@ class TestMLHMM(TestCase):
         hmm = MLHMM(2, self.tagged_sents)
 
         tcount = {
+            ('<s>',): 2,
             ('D',): 2,
             ('N',): 4,
             ('V',): 2,
             ('P',): 2,
+            ('<s>', 'D'): 2,
             ('D', 'N'): 2,
             ('N', 'V'): 2,
             ('V', 'N'): 2,
             ('N', 'P'): 2,
             ('P', '</s>'): 2,
         }
+
+        self.assertEqual(len(tcount), len(hmm._tags_counts))
+
         for gram, c in tcount.items():
             self.assertEqual(hmm.tcount(gram), c, gram)
 
@@ -87,6 +95,7 @@ class TestMLHMM(TestCase):
             ('P', ('N',)): 0.5,
             ('</s>', ('P',)): 1.0,
         }
+
         for params, p in probs.items():
             self.assertAlmostEqual(hmm.trans_prob(*params), p, msg=params)
 
@@ -115,6 +124,60 @@ class TestMLHMM(TestCase):
 
         lp = hmm.log_prob(x, y)
         self.assertAlmostEqual(lp, log2(tag_prob) + log2(out_prob))
+
+    def test_tcount_3gram(self):
+        hmm = MLHMM(3, self.tagged_sents)
+
+        tcount = {
+            ('D',): 2,
+            ('N',): 4,
+            ('V',): 2,
+            ('P',): 2,
+            ('<s>', '<s>'): 2,
+            ('<s>', 'D'): 2,
+            ('D', 'N'): 2,
+            ('N', 'V'): 2,
+            ('V', 'N'): 2,
+            ('N', 'P'): 2,
+            ('<s>', '<s>', 'D'): 2,
+            ('<s>', 'D', 'N'): 2,
+            ('D', 'N', 'V'): 2,
+            ('N', 'V', 'N'): 2,
+            ('V', 'N', 'P'): 2,
+            ('N', 'P', '</s>'): 2,
+        }
+
+        self.assertEqual(len(tcount), len(hmm._tags_counts))
+
+        for gram, c in tcount.items():
+            self.assertEqual(hmm.tcount(gram), c, gram)
+
+    def test_tcount_4gram(self):
+        hmm = MLHMM(4, self.tagged_sents)
+
+        tcount = {
+            ('D',): 2,
+            ('N',): 4,
+            ('V',): 2,
+            ('P',): 2,
+            ('<s>', '<s>', '<s>'): 2,
+            ('<s>', '<s>', 'D'): 2,
+            ('<s>', 'D', 'N'): 2,
+            ('D', 'N', 'V'): 2,
+            ('N', 'V', 'N'): 2,
+            ('V', 'N', 'P'): 2,
+            ('<s>', '<s>', '<s>', 'D'): 2,
+            ('<s>', '<s>', 'D', 'N'): 2,
+            ('<s>', 'D', 'N', 'V'): 2,
+            ('D', 'N', 'V', 'N'): 2,
+            ('N', 'V', 'N', 'P'): 2,
+            ('V', 'N', 'P', '</s>'): 2,
+        }
+
+        self.assertEqual(len(tcount), len(hmm._tags_counts))
+
+        for gram, c in tcount.items():
+            self.assertEqual(hmm.tcount(gram), c, gram)
 
     def test_unknown(self):
         hmm = MLHMM(2, self.tagged_sents)

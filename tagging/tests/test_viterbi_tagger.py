@@ -112,9 +112,10 @@ class TestViterbiTagger(TestCase):
             },
             3: {
                 ('N',): (log2(1.0 * 1.0 * 0.25 * 0.4 * 0.25 * 0.6 * 0.25),
-                             ['D', 'N', 'N']),
+                         ['D', 'N', 'N']),
+
                 ('V',): (log2(1.0 * 1.0 * 0.25 * 0.4 * 0.25 * 0.9 * 0.25),
-                             ['D', 'N', 'V']),
+                         ['D', 'N', 'V']),
             }
         }
         self.assertEqualPi(tagger._pi, pi)
@@ -152,9 +153,10 @@ class TestViterbiTagger(TestCase):
             },
             3: {
                 ('N',): (log2(1.0 * 1.0 * 1.0 * 0.4 * 1.0 * 0.6 * 0.2),
-                             ['D', 'N', 'N']),
+                         ['D', 'N', 'N']),
+
                 ('V',): (log2(1.0 * 1.0 * 1.0 * 0.4 * 1.0 * 0.9 * 0.8),
-                             ['D', 'N', 'V']),
+                         ['D', 'N', 'V']),
             }
         }
         self.assertEqualPi(tagger._pi, pi)
