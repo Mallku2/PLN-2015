@@ -152,6 +152,32 @@ class TestMLHMM(TestCase):
         for gram, c in tcount.items():
             self.assertEqual(hmm.tcount(gram), c, gram)
 
+    def test_trans_prob_3gram(self):
+        hmm = MLHMM(3, self.tagged_sents, addone=False)
+
+        probs = {
+            ('D', ('<s>', '<s>')): 2.0 / 2.0,
+            ('N', ('<s>', 'D')): 2.0 / 2.0,
+            ('V', ('D', 'N')): 2.0 / 2.0,
+            ('N', ('N', 'V')): 2.0 / 2.0,
+            ('P', ('V', 'N')): 2.0 / 2.0,
+            ('</s>', ('N', 'P')): 2.0 / 2.0,
+        }
+
+        for params, p in probs.items():
+            self.assertAlmostEqual(hmm.trans_prob(*params), p, msg=params)
+
+    def test_tag_prob_3gram(self):
+        hmm = MLHMM(3, self.tagged_sents, addone=False)
+
+        y = 'D N V N P'.split()
+        p = hmm.tag_prob(y)
+        tag_prob = 1.0 * 1.0 * 1.0 * 1.0 * 1.0 * 1.0
+        self.assertAlmostEqual(p, tag_prob)
+
+        lp = hmm.tag_log_prob(y)
+        self.assertAlmostEqual(lp, log2(tag_prob))
+
     def test_tcount_4gram(self):
         hmm = MLHMM(4, self.tagged_sents)
 
@@ -178,6 +204,32 @@ class TestMLHMM(TestCase):
 
         for gram, c in tcount.items():
             self.assertEqual(hmm.tcount(gram), c, gram)
+
+    def test_trans_prob_4gram(self):
+        hmm = MLHMM(4, self.tagged_sents, addone=False)
+
+        probs = {
+            ('D', ('<s>', '<s>', '<s>')): 2.0 / 2.0,
+            ('N', ('<s>', '<s>', 'D')): 2.0 / 2.0,
+            ('V', ('<s>', 'D', 'N')): 2.0 / 2.0,
+            ('N', ('D', 'N', 'V')): 2.0 / 2.0,
+            ('P', ('N', 'V', 'N')): 2.0 / 2.0,
+            ('</s>', ('V', 'N', 'P')): 2.0 / 2.0,
+        }
+
+        for params, p in probs.items():
+            self.assertAlmostEqual(hmm.trans_prob(*params), p, msg=params)
+
+    def test_tag_prob_4gram(self):
+        hmm = MLHMM(4, self.tagged_sents, addone=False)
+
+        y = 'D N V N P'.split()
+        p = hmm.tag_prob(y)
+        tag_prob = 1.0 * 1.0 * 1.0 * 1.0 * 1.0 * 1.0
+        self.assertAlmostEqual(p, tag_prob)
+
+        lp = hmm.tag_log_prob(y)
+        self.assertAlmostEqual(lp, log2(tag_prob))
 
     def test_unknown(self):
         hmm = MLHMM(2, self.tagged_sents)
@@ -222,6 +274,83 @@ class TestMLHMM(TestCase):
                 ('P',): (log2(0.5 * 0.25 * 0.5 * 0.25 * 0.5), ['D', 'N', 'V', 'N', 'P']),
             }
 
+        }
+        self.assertEqualPi(tagger._pi, pi)
+
+        self.assertEqual(y, 'D N V N P'.split())
+
+    def test_viterbi_tagger_3(self):
+        hmm = MLHMM(3, self.tagged_sents, addone=False)
+        # XXX: or directly test hmm.tag?
+        tagger = ViterbiTagger(hmm)
+
+        y = tagger.tag('el gato come pescado .'.split())
+
+        pi = {
+            0: {
+                ('<s>', '<s>'): (0.0, []),
+            },
+            1: {
+                # p(el|D) = 1.0 / 2.0; q(D|'<s>', '<s>') = 2.0 / 2.0
+                ('<s>', 'D',): (log2(0.5), ['D']),
+            },
+            2: {
+                # p(gato|N) = 1.0 / 4.0; q('N'|'<s>', 'D') = 2.0 / 2.0
+                ('D', 'N',): (log2(0.5 * 0.25), ['D', 'N']),
+            },
+            3: {
+                # p(come|V) = 2.0 / 2.0; q('V'|'D', 'N') = 2.0 / 2.0
+                ('N', 'V',): (log2(0.5 * 0.25),
+                              ['D', 'N', 'V']),
+            },
+            4: {
+                # p(pescado|N) = 1.0 / 4.0; q('N'|'V', 'N') = 2.0 / 2.0
+                ('V', 'N'): (log2(0.5 * 0.25 * 0.25),
+                             ['D', 'N', 'V', 'N']),
+            },
+            5: {
+                # p(.|P) = 2.0 / 2.0; q('P'|'V', 'N') = 2.0 / 2.0
+                ('N', 'P'): (log2(0.5 * 0.25 * 0.25),
+                             ['D', 'N', 'V', 'N', 'P']),
+            },
+        }
+        self.assertEqualPi(tagger._pi, pi)
+
+        self.assertEqual(y, 'D N V N P'.split())
+
+    def test_viterbi_tagger_4(self):
+        hmm = MLHMM(4, self.tagged_sents, addone=False)
+        # XXX: or directly test hmm.tag?
+        tagger = ViterbiTagger(hmm)
+        y = tagger.tag('el gato come salmón .'.split())
+
+        pi = {
+            0: {
+                ('<s>', '<s>', '<s>'): (0.0, []),
+            },
+            1: {
+                # p(el|D) = 1.0 / 2.0; q(D|'<s>', '<s>', '<s>') = 2.0 / 2.0
+                ('<s>', '<s>', 'D',): (log2(0.5), ['D']),
+            },
+            2: {
+                # p(gato|N) = 1.0 / 4.0; q('N'|'<s>', '<s>', 'D') = 2.0 / 2.0
+                ('<s>', 'D', 'N',): (log2(0.5 * 0.25), ['D', 'N']),
+            },
+            3: {
+                # p(come|V) = 2.0 / 2.0; q('V'|'<s>', 'D', 'N') = 2.0 / 2.0
+                ('D', 'N', 'V',): (log2(0.5 * 0.25),
+                              ['D', 'N', 'V']),
+            },
+            4: {
+                # p(salmón|N) = 1.0 / 4.0; q('N'|'D', 'N', 'V') = 2.0 / 2.0
+                ('N', 'V', 'N'): (log2(0.5 * 0.25 * 0.25),
+                             ['D', 'N', 'V', 'N']),
+            },
+            5: {
+                # p(.|P) = 2.0 / 2.0; q('P'|'N', 'V', 'N') = 2.0 / 2.0
+                ('V', 'N', 'P'): (log2(0.5 * 0.25 * 0.25),
+                             ['D', 'N', 'V', 'N', 'P']),
+            },
         }
         self.assertEqualPi(tagger._pi, pi)
 

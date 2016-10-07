@@ -231,6 +231,7 @@ class MLHMM(HMM):
                 self._tags_counts[ngram[:-1]] += 1.0
 
         self._len_words = len(self._words)
+        self._len_tagset = len(self._tagset)
 
         # Convert defaultdicts to dicts, to avoid errors (when indexing
         # with an non-existing key).
@@ -263,9 +264,12 @@ class MLHMM(HMM):
         """
         ret = 0.0
 
+        if self._n == 1:
+            prev_tags = ()
+
         if self._addone:
             ret = (self.tcount(prev_tags + (tag,)) + 1.0) / \
-                (self.tcount(prev_tags) + self._len_words)
+                (self.tcount(prev_tags) + self._len_tagset)
         else:
             # {not self._addone}
             if prev_tags in self._tags_counts:
@@ -280,13 +284,14 @@ class MLHMM(HMM):
         tag -- the tag.
         """
         ret = 0.0
-        if self.unknown(word) or self.tcount((tag,)) == 0:
+        tcount = self.tcount((tag,))
+
+        if self.unknown(word) or tcount == 0:
             ret = 1.0/self._len_words
         else:
             # {not self.unknown(word) and self.tcount((tag,)) != 0}
             if (word, tag) in self._tagged_words_counts:
-                ret = self._tagged_words_counts[(word, tag)] / \
-                      self.tcount((tag,))
+                ret = self._tagged_words_counts[(word, tag)] / tcount
             else:
                 ret = 0.0
 
