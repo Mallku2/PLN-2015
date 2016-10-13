@@ -14,11 +14,13 @@ def prev_tags(h):
 
     h -- a history.
     """
-    return h[1]
+
+    return h.prev_tags
 
 
 def word_lower(h):
-    """Feature: current lowercased word.
+    """For the given history, it returns the actual word (indicated in h)
+    lowercased.
 
     h -- a history.
     """
@@ -33,7 +35,7 @@ def word_lower(h):
 
 
 def word_istitle(h):
-    """Feature: current lowercased word.
+    """Feature: the actual word begins in upper case.
 
     h -- a history.
     """
@@ -48,7 +50,7 @@ def word_istitle(h):
 
 
 def word_isupper(h):
-    """Feature: current lowercased word.
+    """Feature: the actual word is in upper case.
 
     h -- a history.
     """
@@ -64,7 +66,7 @@ def word_isupper(h):
 
 
 def word_isdigit(h):
-    """Feature: current lowercased word.
+    """Feature: the atual word is a digit.
 
     h -- a history.
     """
@@ -86,14 +88,15 @@ class NPrevTags(Feature):
 
         n -- number of previous tags to consider.
         """
-        self.n = n
+        self._n = n
 
     def _evaluate(self, h):
         """n previous tags tuple.
 
         h -- a history.
         """
-        return h[1][len(h[1]) - self.n:]
+        prev_tags = h.prev_tags
+        return prev_tags[len(prev_tags) - self._n:]
 
 
 class PrevWord(Feature):
@@ -102,13 +105,13 @@ class PrevWord(Feature):
 
         f -- the feature.
         """
-        self.f = f
+        self._f = f
 
     def _evaluate(self, h):
         """Apply the feature to the previous word in the history.
 
         h -- the history.
         """
-        new_h = History(list(h[0]), tuple(h[1]), h[2] - 1)
+        new_h = History(list(h.sent), tuple(h.prev_tags), h.i - 1)
 
-        return str(self.f(new_h))
+        return str(self._f(new_h))
