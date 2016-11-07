@@ -1,12 +1,18 @@
 from collections import namedtuple
-
-from featureforge.feature import Feature
+from featureforge.feature import Feature, input_schema
+from schema import Schema
 
 
 # sent -- the whole sentence.
 # prev_tags -- a tuple with the n previous tags.
 # i -- the position to be tagged.
 History = namedtuple('History', 'sent prev_tags i')
+
+
+def check_rep_invariant(h):
+    return type(h.sent) == list and\
+           type(h.prev_tags) == tuple and\
+           type(h.i) == int
 
 
 def prev_tags(h):
@@ -18,9 +24,10 @@ def prev_tags(h):
     return h.prev_tags
 
 
+@input_schema(History, check_rep_invariant)
 def word_lower(h):
-    """For the given history, it returns the actual word (indicated in h)
-    lowercased.
+    """Feature: for the given history, it returns the current word in
+    lower case.
 
     h -- a history.
     """
@@ -34,14 +41,15 @@ def word_lower(h):
     return ret
 
 
+@input_schema(History, check_rep_invariant)
 def word_istitle(h):
-    """Feature: the actual word begins in upper case.
+    """Feature: does the actual word begin in upper case?.
 
     h -- a history.
     """
     sent, i = h.sent, h.i
     if i >= 0:
-        ret = sent[i][0].isupper() and sent[i][1:].islower()
+        ret = sent[i].istitle()
     else:
         # {i < 0}
         ret = 'BOS'
@@ -49,8 +57,9 @@ def word_istitle(h):
     return ret
 
 
+@input_schema(History, check_rep_invariant)
 def word_isupper(h):
-    """Feature: the actual word is in upper case.
+    """Feature: is the actual word in upper case?.
 
     h -- a history.
     """
@@ -65,8 +74,9 @@ def word_isupper(h):
     return ret
 
 
+@input_schema(History, check_rep_invariant)
 def word_isdigit(h):
-    """Feature: the atual word is a digit.
+    """Feature: is the actual word a digit?.
 
     h -- a history.
     """
@@ -82,6 +92,8 @@ def word_isdigit(h):
 
 
 class NPrevTags(Feature):
+    input_schema = Schema(History, check_rep_invariant)
+    output_schema = Schema(tuple, lambda t: len(t) == self._n)
 
     def __init__(self, n):
         """Feature: n previous tags tuple.
@@ -100,6 +112,8 @@ class NPrevTags(Feature):
 
 
 class PrevWord(Feature):
+    input_schema = Schema(History, check_rep_invariant)
+
     def __init__(self, f):
         """Feature: the feature f applied to the previous word.
 
@@ -112,6 +126,7 @@ class PrevWord(Feature):
 
         h -- the history.
         """
+
         new_h = History(list(h.sent), tuple(h.prev_tags), h.i - 1)
 
         return str(self._f(new_h))
