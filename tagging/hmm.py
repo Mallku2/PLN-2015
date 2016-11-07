@@ -123,7 +123,6 @@ class HMM:
 
         sent -- the sentence.
         """
-        # TODO: por qué tagger no es un atributo de la instancia???...
         tagger = ViterbiTagger(self)
         return tagger.tag(self)
 
@@ -219,8 +218,6 @@ class MLHMM(HMM):
                     # We also need the counting of the occurrences of each
                     # tag. If n > 2 => in the next loop, when counting n and
                     # n-1 grams, the counting of each tag will not be done.
-                    # TODO: pero cuando contamos bigramas, no estamos
-                    # contando 2 veces este tag?
                     self._tags_counts[(tag,)] += 1
 
             tags_extended = (n-1)*HMM.beginning_symbol + tags + HMM.stop_symbol

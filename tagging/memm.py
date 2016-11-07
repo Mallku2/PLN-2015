@@ -1,7 +1,6 @@
 from featureforge.vectorizer import Vectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
-
 from tagging.features import History, word_lower, word_istitle, word_isupper,\
     word_isdigit, NPrevTags, PrevWord
 
@@ -29,8 +28,8 @@ class MEMM:
         self._pipeline = Pipeline([('vect', Vectorizer(features=features)),
                                    ('classifier', LogisticRegression())])
 
-        histories = self.sents_histories(tagged_sents)
-        tags = self.sents_tags(tagged_sents)
+        histories = list(self.sents_histories(tagged_sents))
+        tags = list(self.sents_tags(tagged_sents))
         self._pipeline.fit(histories, tags)
 
     def sents_histories(self, tagged_sents):
@@ -39,7 +38,6 @@ class MEMM:
         tagged_sents -- the corpus (a list of sentences)
         """
         ret = []
-
         for tagged_sent in tagged_sents:
             ret += self.sent_histories(tagged_sent)
 
@@ -50,14 +48,15 @@ class MEMM:
 
         tagged_sent -- the tagged sentence (a list of pairs (word, tag)).
         """
-
-        tags = (self._n-1)*['<s>']
+        prev_tags_size = self._n - 1
+        tags = prev_tags_size * ['<s>']
         sent = []
+
         for (word, tag) in tagged_sent:
             sent.append(word)
             tags.append(tag)
 
-        return (History(sent, tuple(tags[i:i+self._n-1]), i) for
+        return (History(sent, tuple(tags[i:i + prev_tags_size]), i) for
                 i in range(len(tagged_sent)))
 
     def sents_tags(self, tagged_sents):
@@ -78,8 +77,7 @@ class MEMM:
 
         tagged_sent -- the tagged sentence (a list of pairs (word, tag)).
         """
-
-        return (tup[1] for tup in tagged_sent)
+        return (tag for word, tag in tagged_sent)
 
     def tag(self, sent):
         """Tag a sentence.
@@ -88,13 +86,15 @@ class MEMM:
         """
         # Beam inference with beam's size == 1.
         ret = []
-        tags = (self._n-1)*('<s>',)
-        for i in range(len(sent)):
-            tag = self.tag_history(History(sent, tags, i))
+        prev_tags = (self._n-1)*('<s>',)
+        l_sent = list(sent)
+
+        for i in range(len(l_sent)):
+            tag = self.tag_history(History(l_sent, prev_tags, i))
             ret.append(tag)
 
             # Tags for the history of the next iteration.
-            tags = tags[1:] + (tag,)
+            prev_tags = prev_tags[1:] + (tag,)
 
         return ret
 
