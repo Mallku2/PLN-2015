@@ -11,6 +11,7 @@ Options:
 from docopt import docopt
 import pickle
 import sys
+import numpy
 
 from sklearn.metrics import confusion_matrix
 from corpus.ancora import SimpleAncoraCorpusReader
@@ -94,5 +95,6 @@ if __name__ == '__main__':
 
     # Confusion matrix.
     cm = confusion_matrix(y_test, y_pred)
+    numpy.set_printoptions(threshold=sys.maxsize)
     print("Confusion matrix:")
     print(cm)

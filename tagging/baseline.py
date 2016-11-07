@@ -14,9 +14,7 @@ class BaselineTagger:
         self.most_seen_tag = None
 
         for sentence in tagged_sents:
-            for tuple in sentence:
-                word = tuple[0]
-                tag = tuple[1]
+            for word, tag in sentence:
                 if word not in tags_per_words:
                     tags_per_words[word] = defaultdict(int)
 

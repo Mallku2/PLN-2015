@@ -10,7 +10,7 @@ Options:
                   mlhmm: Hidden Markov Model with a Maximum Likelihood
                   parameters' estimation.
                   memm: Maximum Entropy Markov model.
-  -n <number>   Order of the model (only for mlhmm)
+  -n <number>   Order of the model (only for mlhmm and memm)
   -o <file>     Output model file.
   -h --help     Show this screen.
 """
