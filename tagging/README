@@ -1,10 +1,10 @@
 * Ejercicio 1: Corpus Ancora: Estadísticas de etiquetas POS:
-    Se recorrieron las oraciones etiquetadas del corpus "Ancora", extrayendo 
+    Se recorrieron las oraciones etiquetadas del corpus "Ancora", extrayendo
 los estadísticos de interés. No fue necesario emplear ninguna librería externa,
-ya que los datos calculados se redujeron a simples conteos, apoyandonós en 
+ya que los datos calculados se redujeron a simples conteos, apoyandonós en
 diccionarios Python.
     Los datos obtenidos son los siguientes:
-    
+
 Estadísticas básicas:
     Cantidad de oraciones: 17379
     Cantidad de ocurrencias de palabras: 517268
@@ -14,16 +14,17 @@ Estadísticas básicas:
 Etiquetas más frecuentes:
 
 Etiqueta|Frecuencia|Porcentaje del total|Palabras más frecuentes
-da      |     54552|              0.1055|'la': 17897, 'el': 14524, 'los': 7758, 'las': 4882, 'El': 2817
-fp      |     21157|              0.0409|'.': 17513, '(': 1823, ')': 1821
-rg      |     15333|             0.02964|'más': 1707, 'hoy': 772, 'también': 683, 'ayer': 593, 'ya': 544
-nc      |     92002|              0.1779|'años': 849, 'presidente': 682, 'millones': 616, 'equipo': 457, 'partido': 438
-aq      |     33904|             0.06554|'pasado': 393, 'gran': 275, 'mayor': 248, 'nuevo': 234, 'próximo': 213
-vm      |     50609|             0.09784|'está': 564, 'tiene': 511, 'dijo': 499, 'puede': 381, 'hace': 350
-cc      |     15023|             0.02904|'y': 11211, 'pero': 938, 'o': 895, 'Pero': 323, 'e': 310
-np      |     29113|             0.05628|'Gobierno': 554, 'España': 380, 'PP': 234, 'Barcelona': 232, 'Madrid': 196
-sp      |     79904|              0.1545|'de': 28475, 'en': 12114, 'a': 8192, 'del': 6518, 'con': 4150
-fc      |     30148|             0.05828|',': 30148
+cc      |     15023|             0.02904|'y': 11211, 'pero': 938, 'o': 895, 'Pero': 323, 'e': 310,
+rg      |     15333|             0.02964|'más': 1707, 'hoy': 772, 'también': 683, 'ayer': 593, 'ya': 544,
+fp      |     21157|              0.0409|'.': 17513, '(': 1823, ')': 1821,
+np      |     29113|             0.05628|'Gobierno': 554, 'España': 380, 'PP': 234, 'Barcelona': 232, 'Madrid': 196,
+fc      |     30148|             0.05828|',': 30148,
+aq      |     33904|             0.06554|'pasado': 393, 'gran': 275, 'mayor': 248, 'nuevo': 234, 'próximo': 213,
+vm      |     50609|             0.09784|'está': 564, 'tiene': 511, 'dijo': 499, 'puede': 381, 'hace': 350,
+da      |     54552|              0.1055|'la': 17897, 'el': 14524, 'los': 7758, 'las': 4882, 'El': 2817,
+sp      |     79904|              0.1545|'de': 28475, 'en': 12114, 'a': 8192, 'del': 6518, 'con': 4150,
+nc      |     92002|              0.1779|'años': 849, 'presidente': 682, 'millones': 616, 'equipo': 457, 'partido': 438,
+
 
 Describimos a continuación el significado de cada etiqueta:
     _ 'da': categoría: determinante, tipo: artículo.
@@ -40,16 +41,16 @@ Describimos a continuación el significado de cada etiqueta:
 Niveles de ambigüedad de las palabras:
 
 Nivel de ambigüedad |Cantidad de palabras|Porcentaje del total|Palabras más frecuentes
-                   1|               44109|             0.08527|',': 30148, 'el': 14524, 'en': 12114, 'con': 4150, 'por': 4087
-                   2|                2194|            0.004242|'la': 18100, 'y': 11212, '"': 9296, 'los': 7824, 'del': 6519
-                   3|                 153|           0.0002958|'.': 17520, 'a': 8200, 'un': 5198, 'no': 3300, 'es': 2315
-                   4|                  19|           3.673e-05|'de': 28478, 'dos': 917, 'este': 830, 'tres': 425, 'todo': 393
-                   5|                   4|           7.733e-06|'que': 15391, 'mismo': 247, 'cinco': 224, 'medio': 105
-                   6|                   3|             5.8e-06|'como': 1736, 'una': 3852, 'uno': 335
+                   1|               44109|             0.08527|',': 30148, 'el': 14524, 'en': 12114, 'con': 4150, 'por': 4087,
+                   2|                2194|            0.004242|'la': 18100, 'y': 11212, '"': 9296, 'los': 7824, 'del': 6519,
+                   3|                 153|           0.0002958|'.': 17520, 'a': 8200, 'un': 5198, 'no': 3300, 'es': 2315,
+                   4|                  19|           3.673e-05|'de': 28478, 'dos': 917, 'este': 830, 'tres': 425, 'todo': 393,
+                   5|                   4|           7.733e-06|'que': 15391, 'mismo': 247, 'cinco': 224, 'medio': 105,
+                   6|                   3|             5.8e-06|'una': 3852, 'como': 1736, 'uno': 335,
 
 
 * Ejercicio 2: Baseline Tagger
-    Se programó un etiquetador "baseline", en el módulo baseline.py. 
+    Se programó un etiquetador "baseline", en el módulo baseline.py.
 La implementación no supuso ningún desafío en particular.
 
 * Ejercicio 3: Entrenamiento y Evaluación de Taggers
@@ -60,23 +61,23 @@ confusion_matrix, del módulo metrics, de la librería sklearn.
     Se entrenó el etiquetador "baseline", programado en el ejercicio anterior.
 La evaluación del mismo arrojó los siguientes resultados:
 Accuracy: 89.01%
-Accuracy over known words: 95.32%
+Accuracy over known words: 95.31%
 Accuracy over unknown words: 31.80%
 
 En la matriz de confusión se observan presencia de valores altos en la diagonal
-de la misma, con algunos valores menores por fuera de la diagonal, lo que 
-sugiere cierto grado de precisión, cuantificado por el valor de "accuracy" 
+de la misma, con algunos valores menores por fuera de la diagonal, lo que
+sugiere buen grado de precisión, cuantificado por el valor de "accuracy"
 mostrado.
 
 * Ejercicio 4: Hidden Markov Models y Algoritmo de Viterbi
-    Se implementaron un modelo de Hidden Markov (HMM) y un algoritmo de 
+    Se implementaron un modelo de Hidden Markov (HMM) y un algoritmo de
 Viterbi. La implementación del HMM resultó bastante directa, lo cual no fue
-el caso con el algoritmo de Viterbi. Se intentó primero una transcripción 
+el caso con el algoritmo de Viterbi. Se intentó primero una transcripción
 directa del algoritmo, desde las notas de Collins, pero generalizarlo sobre el
-orden n del modelo resultó, extrañamente, problemático. La implementación final
+orden n del modelo resultó problemático. La implementación final
 evita recorrer todas las combinaciones posibles de etiquetas, para concentrarse
 en extender sólo secuencias de etiquetas para las cuales ya se sabe que las
-probabilidades de transición y de "output" involucradas son distintas de 0.   
+probabilidades de transición y de "output" involucradas son distintas de 0.
 
 * Ejercicio 5: HMM POS Tagger
     Se implementó un HMM Pos Tagger, estimando sus parámetros mediante
@@ -87,92 +88,96 @@ algoritmo de evaluación, con el comando time. Se obtuvieron los siguientes resu
         Accuracy: 89.01%
         Accuracy over known words: 95.32%
         Accuracy over unknown words: 31.80%
-        
-        real    1m15.365s
-        user    0m38.212s
-        sys     0m0.712s
+
+        real	0m11.322s
+        user	0m11.340s
+        sys	0m0.220s
+
 
     _ n = 2:
-        Accuracy: 92.61%
-        Accuracy over known words: 97.44%
-        Accuracy over unknown words: 48.81%
-        
-        real    1m1.489s
-        user    0m39.600s
-        sys     0m0.840s
+        Accuracy: 92.72%
+        Accuracy over known words: 97.61%
+        Accuracy over unknown words: 48.42%
+
+
+        real	0m11.407s
+        user	0m11.348s
+        sys	0m0.220s
+
 
    _ n = 3:
-        Accuracy: 92.52%
-        Accuracy over known words: 96.98%
-        Accuracy over unknown words: 52.18%
-        
-        real    2m55.396s
-        user    2m32.540s
-        sys 0m1.228s
+        Accuracy: 93.17%
+        Accuracy over known words: 97.67%
+        Accuracy over unknown words: 52.31%
 
-        
+        real	0m37.869s
+        user	0m37.816s
+        sys	0m0.208s
+
     _ n = 4:
-        Accuracy: 92.42%
-        Accuracy over known words: 96.69%
-        Accuracy over unknown words: 53.76%
-        
-        real    14m32.488s
-        user    12m53.820s
-        sys 0m6.316s
+        Accuracy: 93.14%
+        Accuracy over known words: 97.44%
+        Accuracy over unknown words: 54.15%
 
-        
-    
+
+        real	3m11.062s
+        user	3m10.704s
+        sys	0m0.500s
+
+
+
 * Ejercicio 6: Features para Etiquetado de Secuencias
     Se implementaron las features solicitadas. La labor no presentó mayores
-desafíos. La descripción de las mismas resultó directa. 
-    
+desafíos. La descripción de las mismas resultó directa.
+
 * Ejercicio 7: Maximum Entropy Markov Models
     Se implementó un Maximum Entropy Markov Model (MEMM), empleando la librería
-featureforge (para la construcción de la matriz de valores de los 
+featureforge (para la construcción de la matriz de valores de los
 "features" sobre los historiales) y sklearn (de donde se extrajo el clasificador
 LogisticRegression, y la clase Pipeline, para facilitar el proceso de
-vectorización de los historiales junto con los "features", 
+vectorización de los historiales junto con los "features",
 y entrenamiento y posterior uso del clasificador).
     El MEMM se entrenó y evaluó, para distintos valores de n. Nuevamente se
 tomó el tiempo de evaluación, con el comando time. Se obtuvieron los siguientes
 resultados:
 
     _ n = 1:
-        Accuracy: 92.03%
-        Accuracy over known words: 95.26%
-        Accuracy over unknown words: 62.75%
-        
-        real    1m35.271s
-        user    1m32.424s
-        sys     0m0.736s
-        
+        Accuracy: 92.70%
+        Accuracy over known words: 95.28%
+        Accuracy over unknown words: 69.32%
+
+
+        real	0m23.664s
+        user	0m22.504s
+        sys	0m0.236s
+
     _n = 2:
-        Accuracy: 91.32%
+        Accuracy: 91.99%
         Accuracy over known words: 94.55%
-        Accuracy over unknown words: 62.07%
-        
-        real    1m46.164s
-        user    1m41.952s
-        sys     0m0.616s
-        
+        Accuracy over unknown words: 68.76%
+
+        real	0m25.079s
+        user	0m24.632s
+        sys	0m0.228s
+
     _n = 3:
-        Accuracy: 91.55%
-        Accuracy over known words: 94.69%
-        Accuracy over unknown words: 63.09%
-        
-        real    2m1.554s
-        user    1m58.800s
-        sys     0m1.588s
+        Accuracy: 92.18%
+        Accuracy over known words: 94.72%
+        Accuracy over unknown words: 69.20%
+
+        real	0m25.551s
+        user	0m25.168s
+        sys	0m0.216s
 
 
     _n = 4:
-        Accuracy: 91.61%
-        Accuracy over known words: 94.69%
-        Accuracy over unknown words: 63.62%
-        
-        real	2m14.706s
-        user	2m13.668s
-        sys	    0m0.596s
+        Accuracy: 92.23%
+        Accuracy over known words: 94.72%
+        Accuracy over unknown words: 69.61%
+
+        real	0m24.875s
+        user	0m24.772s
+        sys	0m0.264s
 
     Las matrices de confusión, en cualquier caso, muestran una diagonal poblada
 con valores altos, y pocos valores distintos de cero, dispersos fuera de la
@@ -181,41 +186,87 @@ diagonal.
 sklearn.naive_bayes.MultinomialNB. Los resultados para sklearn.svm.LinearSVC,
 fueron los siguientes:
         _n = 1:
-            Accuracy: 93.78%
-            Accuracy over known words: 97.03%
-            Accuracy over unknown words: 64.36%
-        
-            real    2m2.295s
-            user    1m29.408s
-            sys     0m1.072s
-            
-        _n = 2:
-            Accuracy: 93.63%
-            Accuracy over known words: 96.88%
-            Accuracy over unknown words: 64.12%
-            
-            real    1m37.871s
-            user    1m27.256s
-            sys     0m1.476s
-            
-        _n = 3:
-            Accuracy: 93.82%
-            Accuracy over known words: 96.93%
-            Accuracy over unknown words: 65.58%
-            
-            real    2m3.801s
-            user    1m51.712s
-            sys     0m1.120s
-            
-        _n = 4:
-            Accuracy: 93.91%
-            Accuracy over known words: 96.95%
-            Accuracy over unknown words: 66.32%
-            
-            real    2m8.276s
-            user    2m6.616s
-            sys     0m0.732s
+            Accuracy: 94.43%
+            Accuracy over known words: 97.04%
+            Accuracy over unknown words: 70.82%
 
-    Con respecto a MultinomialNB, el tiempo de entrenamiento fue razonable, pero
-la duración de la evaluación fue demasiado extenso. No ha sido posible
-registrar el resultado.
+
+            real	0m23.511s
+            user	0m22.172s
+            sys	0m0.280s
+
+        _n = 2:
+            Accuracy: 94.29%
+            Accuracy over known words: 96.91%
+            Accuracy over unknown words: 70.57%
+
+
+            real	0m22.917s
+            user	0m22.828s
+            sys	0m0.248s
+
+        _n = 3:
+            Accuracy: 94.40%
+            Accuracy over known words: 96.94%
+            Accuracy over unknown words: 71.38%
+
+            real	0m24.421s
+            user	0m24.332s
+            sys	0m0.180s
+
+
+        _n = 4:
+            Accuracy: 94.46%
+            Accuracy over known words: 96.96%
+            Accuracy over unknown words: 71.81%
+
+            real	0m25.188s
+            user	0m25.036s
+            sys	0m0.308s
+
+
+Los resultados para from sklearn.naive_bayes.MultinomialNB fueron los
+siguientes:
+        _n = 1:
+            Accuracy: 82.18%
+            Accuracy over known words: 85.85%
+            Accuracy over unknown words: 48.89%
+
+
+            real	51m19.965s
+            user	48m8.976s
+            sys	0m4.760s
+
+
+        _n = 2:
+            Accuracy: 76.46%
+            Accuracy over known words: 80.41%
+            Accuracy over unknown words: 40.68%
+
+
+            real	52m19.708s
+            user	49m2.276s
+            sys	0m5.336s
+
+
+        _n = 3:
+            Accuracy: 71.47%
+            Accuracy over known words: 75.09%
+            Accuracy over unknown words: 38.59%
+
+
+            real	52m16.267s
+            user	49m22.032s
+            sys	0m3.988s
+
+
+
+        _n = 4:
+            Accuracy: 68.20%
+            Accuracy over known words: 71.31%
+            Accuracy over unknown words: 40.01%
+
+
+            real	48m42.714s
+            user	45m32.420s
+            sys	0m3.828s
