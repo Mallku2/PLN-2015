@@ -39,10 +39,7 @@ if __name__ == '__main__':
     print('Loading corpus...')
     files = '3LB-CAST/.*\.tbf\.xml'
     corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/', files)
-    res = list(corpus.parsed_sents())
-    test_beg = int(len(res) * 0.9)
-    # Evaluate only over the last 10% of the corpus.
-    parsed_sents = res[test_beg:]
+    parsed_sents = list(corpus.parsed_sents())
 
     # Filter sentences of interest.
     quantity = opts['-n']
@@ -69,6 +66,9 @@ if __name__ == '__main__':
             model_parsed_sent = model.parse(tagged_sent)
 
             # compute labeled scores
+
+            # spans of a tree, each span being a triple (n, i, j),
+            # where n is the non-terminal and (i, j) is the sentence interval
             gold_spans = spans(gold_parsed_sent, unary=False)
             un_gold_spans = set(((tup[1], tup[2]) for tup in gold_spans))
 

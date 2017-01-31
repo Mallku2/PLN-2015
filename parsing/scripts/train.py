@@ -8,6 +8,7 @@ Options:
   -m <model>    Model to use [default: flat]:
                   flat: Flat trees
                   rbranch: Right branching trees
+                  lbranch: Left branching trees
                   upcfg: Unlexicalized PCFG
   -k <value>    Use horizontal markovization (only for UPCFG).
   -o <file>     Output model file.
@@ -18,12 +19,13 @@ import pickle
 
 from corpus.ancora import SimpleAncoraCorpusReader
 
-from parsing.baselines import Flat, RBranch
+from parsing.baselines import Flat, RBranch, LBranch
 from parsing.upcfg import UPCFG
 
 models = {
     'flat': Flat,
     'rbranch': RBranch,
+    'lbranch': LBranch,
     'upcfg': UPCFG
 }
 
@@ -35,10 +37,7 @@ if __name__ == '__main__':
     corpus = SimpleAncoraCorpusReader('ancora/ancora-2.0/', files)
 
     print('Training model...')
-    res = list(corpus.parsed_sents())
-    train_len = int(len(res) * 0.9)
-    # Train only over the first 90% of the corpus.
-    parsed_sents = res[: train_len]
+    parsed_sents = list(corpus.parsed_sents())
     m = str(opts['-m'])
     if m == 'upcfg':
         hm = opts['-k']
