@@ -3,7 +3,7 @@
     La evaluación de los modelos "baseline" arrojó los siguientes resultados:
 
     _ FLAT:
-        Parsed 3492 sentences
+        Parsed 1444 sentences
 
         Labeled
           Precision: 99.93%
@@ -11,16 +11,17 @@
           F1: 25.43%
 
         Unlabeled
-          Precision: 100.00%
+          Precision: 100.00% 
           Recall: 14.58%
           F1: 25.45%
 
-        real	0m5.495s
-        user	0m5.472s
-        sys	0m0.284s
+        real	0m5.397s
+        user	0m5.336s
+        sys	0m0.392s
+
 
     _ RBRANCH:
-        Parsed 3492 sentences
+        Parsed 1444 sentences
 
         Labeled
           Precision: 8.81%
@@ -32,12 +33,13 @@
           Recall: 14.68%
           F1: 11.06%
 
-        real	0m5.976s
-        user	0m5.928s
-        sys	0m0.312s
+        real	0m5.980s
+        user	0m5.912s
+        sys	0m0.376s
+
 
     _ LBRANCH:
-        Parsed 3492 sentences
+        Parsed 1444 sentences
 
         Labeled
           Precision: 8.81%
@@ -49,9 +51,10 @@
           Recall: 24.33%
           F1: 18.33%
 
-        real	0m6.263s
-        user	0m6.216s
-        sys	0m0.324s
+        real	0m5.901s
+        user	0m5.812s
+        sys	0m0.360s
+
 
 
  * Ejercicio 2: Algoritmo CKY
