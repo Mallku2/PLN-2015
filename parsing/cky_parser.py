@@ -19,13 +19,14 @@ class CKYParser:
         productions = self._grammar.productions()
 
         for prod in productions:
-            rhs = prod.rhs()    
+            rhs = prod.rhs()
             if len(rhs) == 2:
                 key = (rhs[0].symbol(), rhs[1].symbol())
             else:
                 # {len(rhs) != 2}
                 # It is a production of the form X->e, with e, a terminal
                 # symbol.
+                assert(len(rhs) == 1)
                 key = (rhs[0],)
 
             if key not in self._prods:
@@ -33,18 +34,12 @@ class CKYParser:
 
             self._prods[key][prod.lhs().symbol()] = log2(prod.prob())
 
-    def parse(self, sent):
-        """Parse a sequence of terminals.
-
-        sent -- the sequence of terminals.
-        """
-
-        n = len(sent)
+    def __init_dynamic_tables(self, sent):
         # Initialize the dynamic table.
         self._pi = {}
         self._bp = {}
 
-        for i in range(n):
+        for i in range(len(sent)):
             word = sent[i]
             key = (word,)
             if key not in self._prods:
@@ -60,33 +55,39 @@ class CKYParser:
                 pi_value[nt] = prob
                 bp_value[nt] = Tree(nt, [word])
 
+    def parse(self, sent):
+        """Parse a sequence of terminals.
+
+        sent -- the sequence of terminals.
+        """
+
+        n = len(sent)
+        self.__init_dynamic_tables(sent)
+
         # Length of an interval of words, into sent.
-        for i_l in range(1, n):
+        for span in range(1, n):
             # Position (into sent) of the beginning of the interval.
-            for i in range(1, n - i_l + 1):
-                j = i + i_l
-                index = (i, j)
+            # TODO: no me queda claro el por qué de la cota superior
+            for begin in range(1, n - span + 1):
+                end = begin + span
+                index = (begin, end)
 
                 self._pi[index] = actual_pi_int = {}
                 self._bp[index] = actual_bp_int = {}
 
                 # Point of splitting.
-                for s in range(i, j):
-                    left_int_index = (i, s)
-                    right_int_index = (s + 1, j)
+                for s in range(begin, end):
+                    left_int_index = (begin, s)
+                    right_int_index = (s + 1, end)
 
                     pi_left_dict = self._pi[left_int_index]
                     pi_right_dict = self._pi[right_int_index]
-                    bp_left_dict = self._bp[left_int_index]
-                    bp_right_dict = self._bp[right_int_index]
 
                     for no_t_y in pi_left_dict:
                         for no_t_z in pi_right_dict:
                             key = (no_t_y, no_t_z)
                             prob_y = pi_left_dict[no_t_y]
                             prob_z = pi_right_dict[no_t_z]
-                            tree_y = bp_left_dict[no_t_y]
-                            tree_z = bp_right_dict[no_t_z]
 
                             if key in self._prods:
                                 ps = self._prods[key]
@@ -103,6 +104,8 @@ class CKYParser:
                                 # {nt in self._pi[index]}
                                 if prob > self._pi[index][nt]:
                                     actual_pi_int[nt] = prob
+                                    tree_y = self._bp[left_int_index][no_t_y]
+                                    tree_z = self._bp[right_int_index][no_t_z]
                                     actual_bp_int[nt] = Tree(nt,
                                                              [tree_y,
                                                               tree_z])
