@@ -215,7 +215,7 @@ class TestCKYParser(TestCase):
                                              ['duck'])])])},
               (3, 6): {},
               (3, 7): {},
-              (3, 8): {'V P': Tree('VP',
+              (3, 8): {'VP': Tree('VP',
                                    [Tree('VP',
                                     [Tree('Vt',
                                           ['saw']),
