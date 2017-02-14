@@ -19,7 +19,7 @@ class TestUPCFG(TestCase):
             """)
         t2 = t.copy(deep=True)
 
-        model = UPCFG([t])
+        model = UPCFG([t], unary=False)
 
         self.assertEqual(t, t2)
 
@@ -32,7 +32,7 @@ class TestUPCFG(TestCase):
                 )
             """)
 
-        model = UPCFG([t])
+        model = UPCFG([t], unary=False)
 
         prods = model.productions()
 
@@ -57,7 +57,7 @@ class TestUPCFG(TestCase):
                     (VP (Verb come) (NP (Noun pescado) (Adj crudo)))
                 )
             """)
-        model = UPCFG([t], start='S')
+        model = UPCFG([t], start='S', unary=False)
 
         sent = 'el gato come pescado crudo'.split()
         tags = 'Det Noun Verb Noun Adj'.split()
@@ -74,7 +74,7 @@ class TestUPCFG(TestCase):
                     (VP (Verb come) (NP (Noun pescado) (Adj crudo)))
                 )
             """)
-        model = UPCFG([t], start='S')
+        model = UPCFG([t], start='S', unary=False)
 
         sent = 'gato el come pescado crudo'.split()
         tags = 'Noun Det Verb Noun Adj'.split()
@@ -87,7 +87,7 @@ class TestUPCFG(TestCase):
     def test_horz_markov_None(self):
         t = Tree.fromstring("(NP (Det el) (Noun gato) (Adj negro))")
 
-        model = UPCFG([t])  # horzMarkov=None by default
+        model = UPCFG([t], unary=False)  # horzMarkov=None by default
 
         prods = model.productions()
 
@@ -106,7 +106,7 @@ class TestUPCFG(TestCase):
     def test_horz_markov_1(self):
         t = Tree.fromstring("(NP (Det el) (Noun gato) (Adj negro))")
 
-        model = UPCFG([t], horzMarkov=1)
+        model = UPCFG([t], horzMarkov=1, unary=False)
 
         prods = model.productions()
 
@@ -125,7 +125,7 @@ class TestUPCFG(TestCase):
     def test_horz_markov_0(self):
         t = Tree.fromstring("(NP (Det el) (Noun gato) (Adj negro))")
 
-        model = UPCFG([t], horzMarkov=0)
+        model = UPCFG([t], horzMarkov=0, unary=False)
 
         prods = model.productions()
 

@@ -8,7 +8,8 @@ class UPCFG:
     """Unlexicalized PCFG.
     """
 
-    def __init__(self, parsed_sents, start='sentence', horzMarkov=None):
+    def __init__(self, parsed_sents, start='sentence', horzMarkov=None,
+        unary=True):
         """
         parsed_sents -- list of training trees.
         """
@@ -18,15 +19,20 @@ class UPCFG:
 
         # Productions in CNF.
         productions = []
+
         for parsed_sent in parsed_sents:
             t_copy = parsed_sent.copy(deep=True)
             unlexicalize(t_copy)
+
             t_copy.chomsky_normal_form(horzMarkov=horzMarkov)
-            t_copy.collapse_unary(collapsePOS=True)
+
+            if not unary:
+                t_copy.collapse_unary(collapsePOS=True)
+
             productions += t_copy.productions()
 
         self._pcfg = induce_pcfg(Nonterminal(start), productions)
-        self._parser = CKYParser(self._pcfg)
+        self._parser = CKYParser(self._pcfg, unary)
 
     def productions(self):
         """Returns the list of UPCFG probabilistic productions.

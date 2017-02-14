@@ -11,7 +11,7 @@
           F1: 25.43%
 
         Unlabeled
-          Precision: 100.00% 
+          Precision: 100.00%
           Recall: 14.58%
           F1: 25.45%
 
@@ -55,6 +55,11 @@
         user	0m5.812s
         sys	0m0.360s
 
+  Notar cómo el modelo FLAT tiene alto nivel de presición: de hecho,
+prácticamente todos los constituyentes que devuelve, son correctos. Sin
+embargo, no devuelve todos los que debía, y allí es en donde el
+estadístico "recall" agrega información que permite entender mejor el
+rendimiento del modelo.
 
 
  * Ejercicio 2: Algoritmo CKY
@@ -107,94 +112,116 @@ ordinarios extraidas del corpus).
     Se entrenó el modelo resultante, y se lo evaluó sobre la misma porción
 del corpus utilizada en el ejercicio 2. Obtuvimos los siguientes resultados:
 
-        Labeled
-          Precision: 71.10%
-          Recall: 70.41%
-          F1: 70.76%
-        Unlabeled
-          Precision: 73.06%
-          Recall: 72.35%
-          F1: 72.71%
+          Parsed 1444 sentences
+            Labeled
+              Precision: 73.15%
+              Recall: 72.85%
+              F1: 73.00%
 
-        real    1m47.062s
-        user    1m43.904s
-        sys 0m0.404s
+            Unlabeled
+              Precision: 75.26%
+              Recall: 74.95%
+              F1: 75.10%
+
+          real	1m24.555s
+          user	1m23.944s
+          sys	0m0.452s
+
+
 
  * Ejercicio 4: Markovización Horizontal
     Se modificó la UPCFG, para agregar la posibilidad de utilizar
 markovización horizontal (MH). La implementación simplemente se apoya en el
 método chomsky_normal_form de la clase Tree, el cual, opcionalmente, puede
 realizar este trabajo.
-    Se evaluaron modelos con MH de orden n variable, entre 0 y 4, sobre la
+    Como se señala en https://www.youtube.com/watch?v=a9qw0IFjojA, a medida
+que, en una gramática binarizada, condicionamos sobre menor cantidad de
+información, relativa al contexto  en el que una producción ocurre, reducimos
+así la cantidad de símbolos de nuestra gramática, y para ciertos valores de MH,
+hasta podemos lograr mejor rendimiento, a comparación de una gramática
+binarizada sin restricción en la información contextual que mantenemos
+codificada en los no-terminales. Esto se va a observar en los resultados
+que obtuvimos.
+    Se evaluaron modelos con MH de orden n variable, entre 0 y 3, sobre la
 misma porción de corpus empleada para evaluar los modelos anteriores.
 Obtuvimos los siguientes resultados:
 
     _ MH = 0:
+      Parsed 1444 sentences
         Labeled
-          Precision: 65.94%
-          Recall: 63.54%
-          F1: 64.72%
-        Unlabeled
-          Precision: 67.62%
-          Recall: 65.16%
-          F1: 66.36%
+          Precision: 70.23%
+          Recall: 70.00%
+          F1: 70.12%
 
-        real    0m42.093s
-        user    0m41.196s
-        sys 0m0.400s
+        Unlabeled
+          Precision: 72.10%
+          Recall: 71.87%
+          F1: 71.99%
+
+        real	0m52.663s
+        user	0m51.840s
+        sys	0m0.284s
+
 
     _ MH = 1:
+      Parsed 1444 sentences
         Labeled
-          Precision: 71.32%
-          Recall: 71.38%
-          F1: 71.35%
+          Precision: 74.60%
+          Recall: 74.51%
+          F1: 74.55%
         Unlabeled
-          Precision: 72.86%
-          Recall: 72.92%
-          F1: 72.89%
+          Precision: 76.47%
+          Recall: 76.37%
+          F1: 76.42%
 
-        real    0m49.415s
-        user    0m48.076s
-        sys 0m0.392s
+        real	0m57.065s
+        user	0m56.160s
+        sys	0m0.200s
+
 
     _ MH = 2:
+      Parsed 1444 sentences
         Labeled
-          Precision: 73.38%
-          Recall: 72.43%
-          F1: 72.90%
+          Precision: 74.83%
+          Recall: 74.31%
+          F1: 74.57%
         Unlabeled
-          Precision: 75.02%
-          Recall: 74.05%
-          F1: 74.53%
+          Precision: 76.75%
+          Recall: 76.22%
+          F1: 76.48%
 
-        real    1m5.575s
-        user    1m4.068s
-        sys 0m0.452s
+        real	1m8.547s
+        user	1m8.476s
+        sys	0m0.392s
+
 
     _ MH = 3:
+      Parsed 1444 sentences
         Labeled
-          Precision: 74.05%
-          Recall: 72.43%
-          F1: 73.23%
+          Precision: 74.01%
+          Recall: 73.37%
+          F1: 73.69%
         Unlabeled
-          Precision: 75.87%
-          Recall: 74.21%
-          F1: 75.03%
+          Precision: 76.17%
+          Recall: 75.51%
+          F1: 75.84%
 
-        real    1m9.332s
-        user    1m7.340s
-        sys 0m0.852s
+        real	1m20.238s
+        user	1m20.052s
+        sys	0m0.396s
 
-    _ MH = 4:
-        Labeled
-          Precision: 71.77%
-          Recall: 70.90%
-          F1: 71.33%
-        Unlabeled
-          Precision: 73.65%
-          Recall: 72.76%
-          F1: 73.20%
 
-        real    1m16.698s
-        user    1m15.224s
-        sys 0m0.492s
+ * Ejercicio 5 (punto bonus): CKY con Producciones Unarias
+  Se modificó el algoritmo CKY para que pueda manejar producciones unarias,
+adaptando el algoritmo expuesto por Jurafsky y Manning
+en https://www.youtube.com/watch?v=hq80J8kBg-Y a nuestra versión,
+que está tomada de las notas de Collins
+(http://www.cs.columbia.edu/~mcollins/courses/nlp2011/notes/pcfgs.pdf). La
+principal diferencie entre ambos algoritmos es que el primer intenta manejar
+producciones "vacías", utilizando la técnica de "fenceposts", mientras que
+nuestra implementación no.
+  Se hicieron las correspondientes modificaciones a la implementación de la
+UPCFG, para admitir producciones unarias, como también se modificó
+el script train.py.
+  Se agregó a la suite de tests un caso de test para gramáticas con
+producciones unarias, tomado de la exposición de Jurafsky y Manning.

@@ -2,10 +2,9 @@ from math import log2
 from nltk.tree import Tree
 from itertools import product
 
-
 class CKYParser:
 
-    def __init__(self, grammar):
+    def __init__(self, grammar, unary):
         """
         grammar -- a binarised NLTK PCFG.
         """
@@ -13,6 +12,7 @@ class CKYParser:
         self._start_s = self._grammar.start().symbol()
         self._pi = {}
         self._bp = {}
+        self._unary = unary
 
         # Cache for the productions of the grammar: dictionary of the form
         # { 'binaries' : {rhs-non-terminals x {lhs-non-terminal x log_prob} }
@@ -20,35 +20,46 @@ class CKYParser:
         #   'lexicon' :  {rhs-terminal x {lhs-non-terminal x log_prob} }}
         self._prods = {'binaries': {},
                        'unaries': {},
-                       'lexicon': {}, }
+                       'lexicon': {}}
 
         productions = self._grammar.productions()
         type_prods = None
         for prod in productions:
             rhs = prod.rhs()
+            add = True
 
             if len(rhs) == 2:
                 key = (rhs[0].symbol(), rhs[1].symbol())
                 type_prods = 'binaries'
             else:
                 # {len(rhs) != 2}
-                # It is a production of the form X->e, with e, a terminal
-                # symbol.
                 assert(len(rhs) == 1)
 
                 if prod.is_lexical():
+                    # It is a production of the form X->e, with e, a terminal
+                    # symbol.
                     type_prods = 'lexicon'
                     key = rhs[0]
                 else:
                     # {not prod.is_lexical()}
-                    type_prods = 'unaries'
-                    key = rhs[0].symbol()
 
-            if key not in self._prods[type_prods]:
-                self._prods[type_prods][key] = {}
+                    # When the original parsing-tree, from which we obtaing the
+                    # PCFG, contains an unary production of the form
+                    # self._start_s -> A, with A a non-terminal symbol, even
+                    # collapse_unary doesn't get rid of such productions.
+                    if not self._unary:
+                        add = False
+                    else:
+                        type_prods = 'unaries'
+                        key = rhs[0].symbol()
 
-            self._prods[type_prods][key][prod.lhs().symbol()] = log2(
-                                                                prod.prob())
+            if add:
+                if key not in self._prods[type_prods]:
+                    self._prods[type_prods][key] = {}
+
+                self._prods[type_prods][key][prod.lhs().symbol()] = log2(
+                                                                    prod.prob())
+
 
     def _init_dynamic_tables(self, sent):
         ret = True  # Was initilization done?
@@ -77,7 +88,8 @@ class CKYParser:
 
             # Handle unaries: taken from
             # https://www.youtube.com/watch?v=hq80J8kBg-Y&t=1043s
-            self._handle_unaries(pi_value, bp_value)
+            if self._unary:
+                self._handle_unaries(pi_value, bp_value)
 
         return ret
 
@@ -163,7 +175,8 @@ class CKYParser:
                     self._handle_binaries(left_int_index, right_int_index,
                                           actual_pi_int, actual_bp_int)
 
-                self._handle_unaries(actual_pi_int, actual_bp_int)
+                if self._unary:
+                    self._handle_unaries(actual_pi_int, actual_bp_int)
 
         # Determine if the parsing was successful.
         last_index = (1, n)

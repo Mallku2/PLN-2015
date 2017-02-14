@@ -24,7 +24,7 @@ class TestCKYParser(TestCase):
                 Adj -> 'crudo'          [1.0]
             """)
 
-        parser = CKYParser(grammar)
+        parser = CKYParser(grammar, False)
 
         lp, t = parser.parse('el gato come pescado crudo'.split())
 
@@ -130,7 +130,7 @@ class TestCKYParser(TestCase):
                 NN -> 'duck'            [1.0]
             """)
 
-        parser = CKYParser(grammar)
+        parser = CKYParser(grammar, False)
 
         lp, t = parser.parse('the girl saw her duck with the telescope'
                              .split())
@@ -215,7 +215,7 @@ class TestCKYParser(TestCase):
                                              ['duck'])])])},
               (3, 6): {},
               (3, 7): {},
-              (3, 8): {'V P': Tree('VP',
+              (3, 8): {'VP': Tree('VP',
                                    [Tree('VP',
                                     [Tree('Vt',
                                           ['saw']),
@@ -384,7 +384,7 @@ class TestCKYParser(TestCase):
                 P -> 'with'             [1.0]
             """)
 
-        parser = CKYParser(grammar)
+        parser = CKYParser(grammar, True)
 
         lp, t = parser.parse('fish people fish tanks'.split())
 
