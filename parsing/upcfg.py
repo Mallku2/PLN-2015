@@ -9,7 +9,7 @@ class UPCFG:
     """
 
     def __init__(self, parsed_sents, start='sentence', horzMarkov=None,
-        unary=True):
+                 unary=True):
         """
         parsed_sents -- list of training trees.
         """

@@ -33,8 +33,16 @@ class TestBaseline(TestCase):
         trees = [model.parse(s) for s in self.tagged_sents]
 
         trees2 = [
-            Tree.fromstring("""(S (D El) (S|<> (N gato) (S|<> (V come) (S|<> (N pescado) (P .)))))"""),
-            Tree.fromstring("""(S (D La) (S|<> (N gata) (S|<> (V come) (S|<> (N salmón) (P .)))))"""),
+            Tree.fromstring("""(S (D El)
+                                  (S|<> (N gato)
+                                        (S|<> (V come)
+                                              (S|<> (N pescado)
+                                                    (P .)))))"""),
+            Tree.fromstring("""(S (D La)
+                                  (S|<> (N gata)
+                                        (S|<> (V come)
+                                              (S|<> (N salmón)
+                                                    (P .)))))"""),
         ]
         self.assertEqual(trees, trees2)
 
@@ -44,7 +52,16 @@ class TestBaseline(TestCase):
         trees = [model.parse(s) for s in self.tagged_sents]
 
         trees2 = [
-            Tree.fromstring("""(S (S|<> (S|<> (S|<> (D El) (N gato)) (V come)) (N pescado)) (P .))"""),
-            Tree.fromstring("""(S (S|<> (S|<> (S|<> (D La) (N gata)) (V come)) (N salmón)) (P .))"""),
+            Tree.fromstring("""(S (S|<> (S|<>
+                                        (S|<> (D El)
+                                              (N gato))
+                                        (V come))
+                                   (N pescado))
+                                   (P .))"""),
+            Tree.fromstring("""(S (S|<> (S|<> (S|<> (D La)
+                                                    (N gata))
+                                              (V come))
+                                  (N salmón))
+                                  (P .))"""),
         ]
         self.assertEqual(trees, trees2)

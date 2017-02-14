@@ -81,7 +81,11 @@ class TestUPCFG(TestCase):
         tagged_sent = list(zip(sent, tags))
         tree = model.parse(tagged_sent)
 
-        tree2 = Tree.fromstring("(S (Noun gato) (Det el) (Verb come) (Noun pescado) (Adj crudo))")
+        tree2 = Tree.fromstring("""(S (Noun gato)
+                                      (Det el)
+                                      (Verb come)
+                                      (Noun pescado)
+                                      (Adj crudo))""")
         self.assertEqual(tree, tree2)
 
     def test_horz_markov_None(self):
@@ -93,8 +97,10 @@ class TestUPCFG(TestCase):
 
         prods2 = [
             # the right-binarized productions:
-            ProbabilisticProduction(N('NP'), [N('Det'), N('NP|<Noun-Adj>')], prob=1.0),
-            ProbabilisticProduction(N('NP|<Noun-Adj>'), [N('Noun'), N('Adj')], prob=1.0),
+            ProbabilisticProduction(N('NP'), [N('Det'),
+                                    N('NP|<Noun-Adj>')], prob=1.0),
+            ProbabilisticProduction(N('NP|<Noun-Adj>'),
+                                    [N('Noun'), N('Adj')], prob=1.0),
 
             ProbabilisticProduction(N('Det'), ['Det'], prob=1.0),
             ProbabilisticProduction(N('Noun'), ['Noun'], prob=1.0),
@@ -112,8 +118,10 @@ class TestUPCFG(TestCase):
 
         prods2 = [
             # the right-binarized productions:
-            ProbabilisticProduction(N('NP'), [N('Det'), N('NP|<Noun>')], prob=1.0),
-            ProbabilisticProduction(N('NP|<Noun>'), [N('Noun'), N('Adj')], prob=1.0),
+            ProbabilisticProduction(N('NP'),
+                                    [N('Det'), N('NP|<Noun>')], prob=1.0),
+            ProbabilisticProduction(N('NP|<Noun>'),
+                                    [N('Noun'), N('Adj')], prob=1.0),
 
             ProbabilisticProduction(N('Det'), ['Det'], prob=1.0),
             ProbabilisticProduction(N('Noun'), ['Noun'], prob=1.0),
@@ -132,7 +140,8 @@ class TestUPCFG(TestCase):
         prods2 = [
             # the right-binarized productions:
             ProbabilisticProduction(N('NP'), [N('Det'), N('NP|<>')], prob=1.0),
-            ProbabilisticProduction(N('NP|<>'), [N('Noun'), N('Adj')], prob=1.0),
+            ProbabilisticProduction(N('NP|<>'),
+                                    [N('Noun'), N('Adj')], prob=1.0),
 
             ProbabilisticProduction(N('Det'), ['Det'], prob=1.0),
             ProbabilisticProduction(N('Noun'), ['Noun'], prob=1.0),

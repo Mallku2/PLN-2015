@@ -166,13 +166,13 @@ Obtuvimos los siguientes resultados:
     _ MH = 1:
       Parsed 1444 sentences
         Labeled
-          Precision: 74.60%
-          Recall: 74.51%
-          F1: 74.55%
+          Precision: 74.66%
+          Recall: 74.57%
+          F1: 74.61%
         Unlabeled
-          Precision: 76.47%
-          Recall: 76.37%
-          F1: 76.42%
+          Precision: 76.53%
+          Recall: 76.43%
+          F1: 76.48%
 
         real	0m57.065s
         user	0m56.160s
@@ -182,13 +182,13 @@ Obtuvimos los siguientes resultados:
     _ MH = 2:
       Parsed 1444 sentences
         Labeled
-          Precision: 74.83%
-          Recall: 74.31%
-          F1: 74.57%
+          Precision: 74.81%
+          Recall: 74.29%
+          F1: 74.55%
         Unlabeled
-          Precision: 76.75%
-          Recall: 76.22%
-          F1: 76.48%
+          Precision: 76.73%
+          Recall: 76.20%
+          F1: 76.46%
 
         real	1m8.547s
         user	1m8.476s
@@ -198,13 +198,13 @@ Obtuvimos los siguientes resultados:
     _ MH = 3:
       Parsed 1444 sentences
         Labeled
-          Precision: 74.01%
-          Recall: 73.37%
-          F1: 73.69%
+          Precision: 73.99%
+          Recall: 73.35%
+          F1: 73.67%
         Unlabeled
-          Precision: 76.17%
-          Recall: 75.51%
-          F1: 75.84%
+          Precision: 76.15%
+          Recall: 75.49%
+          F1: 75.82%
 
         real	1m20.238s
         user	1m20.052s

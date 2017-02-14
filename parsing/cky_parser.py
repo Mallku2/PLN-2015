@@ -2,6 +2,7 @@ from math import log2
 from nltk.tree import Tree
 from itertools import product
 
+
 class CKYParser:
 
     def __init__(self, grammar, unary):
@@ -58,8 +59,8 @@ class CKYParser:
                     self._prods[type_prods][key] = {}
 
                 self._prods[type_prods][key][prod.lhs().symbol()] = log2(
-                                                                    prod.prob())
-
+                                                                    prod.prob()
+                                                                    )
 
     def _init_dynamic_tables(self, sent):
         ret = True  # Was initilization done?
