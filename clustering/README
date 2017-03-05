@@ -1,0 +1,8 @@
+* presentacion.pdf contiene todos los detalles relativos al proyecto.
+
+* Para la ejecución de los tests pertinentes: ir a la carpeta "clustering" 
+(dentro de la carpeta del mismo nombre, que contiene a todo el proyecto), escoger
+el corpus contra el cual testear (de entre news.data.219 y news.data.544) y nombrarlo
+news.data. Desde la mencionada carpeta "clustering" correr los tests con 
+"nosetests -s tests/tests.py", para visualizar los resultados de los estadísticos
+estimados.
