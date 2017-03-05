@@ -34,7 +34,7 @@ def generate_appr_request(link, callback):
         link: a string representing the link to the site.
         callback: the callback procedure that will receive the response
                 to the request."""
-    # TODO: re: determinar si esta forma de hacerlo es eficiente.
+                
     req = None
     for site_link, selectors in sites_selectors.iteritems():
         site_reg_exp = ".*" + site_link + ".*"
@@ -46,5 +46,4 @@ def generate_appr_request(link, callback):
             req.meta["body_selector"] = selectors[body_selector_index]
             break
 
-    # TODO: fijarse cuando debo devolver return, y cuando yield.
     return req

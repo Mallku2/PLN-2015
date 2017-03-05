@@ -1,7 +1,6 @@
 title_selector_index = "title_selector"
 body_selector_index = "body_selector"
 rss_index = "rss_index"
-# TODO: posiblemente tengamos que agregar aqui el link al rss de cada portal
 google_news_main_selectors = {"http://news.google.com/news/story": {
                                 "news_selector": "//div[@class=\"story-page-main\"]//div[@class=\"topic\"]"
                                                                     }
@@ -14,15 +13,19 @@ sites_selectors = {"www\.infobae\.com":
 
                    "www\.clarin\.com":
                    {title_selector_index: ["//div[@class=\"int-nota-title\"]/h1",
-                                           "//div[@class=\"wrapper board-viste interior\"]/h1[@class=\"titulo\"]"],
-                    body_selector_index: ["//div[@class=\"nota\"]"],
+                                           "//div[@class=\"wrapper board-viste interior\"]/h1[@class=\"titulo\"]",
+                                           "//div[@class=\"title\"]/h1[@itemprop=\"headline\"]"],
+                    body_selector_index: ["//div[@class=\"nota\"]",
+                                          "//div[@class=\"body-nota\"]/span[@itemprop=\"articleBody\"]"],
                     rss_index: "http://www.clarin.com/rss/lo-ultimo/"},
 
                    "www\.pagina12\.com\.ar":
                    {title_selector_index: ["//div[@class=\"nota ultima-noticia top12\"]/h2",
                                            "//div[@class=\"nota top12\"]/h2",
-                                           "//div[@class=\"nota\"]/h2"],
-                    body_selector_index: ["//div[@id=\"cuerpo\"]"],
+                                           "//div[@class=\"nota\"]/h2",
+                                           "//div[@class=\"article-header diario\"]//div[@class=\"article-title\"]"],
+                    body_selector_index: ["//div[@id=\"cuerpo\"]",
+                                          "//div[@class=\"article\"]//div[@class=\"article-text\"]"],
                     rss_index: "http://www.pagina12.com.ar/diario/rss/ultimas_noticias.xml"},
 
                    "www\.lavoz\.com\.ar":
