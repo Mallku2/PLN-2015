@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
-import pickle
-from scipy.sparse import lil_matrix
 from math import log
 from os import remove
+import pickle
 
 from feature_selection import BagOfWordsRep, VectRep
 
@@ -33,7 +32,6 @@ class TestBagOfWordsRep(TestCase):
     def test_prepare_text(self):
         ret = self._bag_of_words_rep._prepare_text(self._test_texts[0])
 
-        # TODO: esto esta bien?
         self.assertEqual(["demor",
                           "ambul",
                           "chic",
@@ -47,7 +45,6 @@ class TestBagOfWordsRep(TestCase):
 
         ret = self._bag_of_words_rep._prepare_text(self._test_texts[1])
 
-        # TODO: esto esta bien?
         self.assertEqual(["esper",
                           "torment",
                           "durant",
@@ -55,39 +52,43 @@ class TestBagOfWordsRep(TestCase):
 
     def test_update_global_index(self):
         # Word: "hospital"
-        self._bag_of_words_rep._update_global_index_with_word("hospital", 10, 1)
+        self._bag_of_words_rep._update_global_index_with_word("hospital", 1)
+        self._bag_of_words_rep._update_global_index_with_word("hospital", 2)
 
         doc_freq = self._bag_of_words_rep.get_doc_freq()
-        self.assertEqual({"hospital": 10}, doc_freq)
+        self.assertEqual({"hospital": 2}, doc_freq)
 
         collection_size = self._bag_of_words_rep.get_collection_size()
-        self.assertEqual(1, collection_size)
+        self.assertEqual(2, collection_size)
 
-        words_into_collection = self._bag_of_words_rep.get_amount_words_into_collection()
+        words_into_collection = self._bag_of_words_rep.\
+            get_amount_words_into_collection()
+
         self.assertEqual(1, words_into_collection)
 
         words_dimensions = self._bag_of_words_rep.get_words_dimensions()
         self.assertEqual({"hospital": 0}, words_dimensions)
 
         # Word: "alberdi"
-        self._bag_of_words_rep._update_global_index_with_word("alberdi", 5, 2)
+        self._bag_of_words_rep._update_global_index_with_word("alberdi", 2)
 
-        self.assertEqual({"hospital": 10.0, "alberdi": 5.0},
+        self.assertEqual({"hospital": 2.0, "alberdi": 1.0},
                          doc_freq)
 
         collection_size = self._bag_of_words_rep.get_collection_size()
         self.assertEqual(2, collection_size)
 
-        words_into_collection = self._bag_of_words_rep.get_amount_words_into_collection()
+        words_into_collection = self._bag_of_words_rep.\
+            get_amount_words_into_collection()
         self.assertEqual(2, words_into_collection)
 
         self.assertEqual({"hospital": 0, "alberdi": 1},
                          words_dimensions)
 
         # Word: "alberdi", again...
-        self._bag_of_words_rep._update_global_index_with_word("alberdi", 5, 3)
+        self._bag_of_words_rep._update_global_index_with_word("alberdi", 3)
 
-        self.assertEqual({"hospital": 10.0, "alberdi": 10.0},
+        self.assertEqual({"hospital": 2.0, "alberdi": 2.0},
                          doc_freq)
 
         collection_size = self._bag_of_words_rep.get_collection_size()
