@@ -145,7 +145,7 @@ class TestClustering(TestCase):
     def test_against_google_news_original_centroid_def(self):
         self._test_against_google_news(1)
 
-    def atest_against_google_news_new_centroid_def(self):
+    def test_against_google_news_new_centroid_def(self):
         self._test_against_google_news(2)
 
     def _test_against_google_news(self, centroid_type):
