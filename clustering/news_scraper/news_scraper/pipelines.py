@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import pickle
-import time
-import pdb # TODO: eliminar
+
 
 class NewsScraperPipeline(object):
 
     def __init__(self):
-        # TODO: cambiar el nombre de este archivo...
+        # news.data has a dictionary representing the corpus (the clustered
+        # news) and a dictionary with each scraped news.
         self._data_file = open("news.data", "r+b")
         self._log = open("log", "a+")
         self._log.write("\n-------------------------\n")
@@ -48,15 +48,12 @@ class NewsScraperPipeline(object):
                 self._corpus[cluster_id] = {}
 
             # {cluster_id in self._corpus}
-            # TODO: con la nueva forma de referirnos al id del cluster, no
-            # me va a hacer mas falta que add_article reciba por separado el
-            # id de cluster
             self.add_article(cluster_id, item)
         else:
             # {not item["article_scraped"]}
             reason_not_scraped = item["reason_not_scraped"]
             if reason_not_scraped != 3:
-                self._write_error_to_log(item["resolved_link"],
+                self._write_error_to_log(resolved_link,
                                          item["reason_not_scraped"])
 
         return item
@@ -70,12 +67,6 @@ class NewsScraperPipeline(object):
         """
             PRE : {cluster_id in self._corpus}
         """
-        # TODO: quizas no haga falta almacenar el titulo separado del cuerpo...
-        # TODO: quizas deberiamos traer aqui la labor de agregar una nueva
-        # clave a self._corpus
-        # TODO: no esta feo meterse con los indices?
-        # TODO: recordar que ya no hace falta hacer tanto despelote con
-        # el cluster_id. Quizas ya no haga falta recibirlo por parametro.
         resolved_link = item["resolved_link"]
         title = item["title"]
         body = item["body"]
@@ -96,8 +87,8 @@ class NewsScraperPipeline(object):
         # For debugging...
         if self._new_articles_added:
             rss = spider.get_rss()
-            rss_file = open("last_rss_" + str(len(self._scraped_news)) + ".xml",
-                            "w")
+            rss_file = open("last_rss_" + str(len(self._scraped_news)) +
+                            ".xml", "w")
             rss_file.write(rss)
             rss_file.close()
 

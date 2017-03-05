@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 import scrapy
 import feedparser
-import cPickle
 import re
 from bs4 import BeautifulSoup
 from news_scraper.items import NewsScraperItem
-from clustering.spider_utilities.selectors import sites_selectors, title_selector_index, body_selector_index
+from clustering.spider_utilities.selectors import title_selector_index,\
+                                                  body_selector_index
 from clustering.spider_utilities import common_utilities
 
 
 class GoogleNewsSpider(scrapy.Spider):
     name = "google_news"
-    start_urls = ["https://news.google.com/news?cf=all&hl=es&pz=1&ned=es_ar&output=rss"]
+    start_urls = [
+        "https://news.google.com/news?cf=all&hl=es&pz=1&ned=es_ar&output=rss"]
 
     def __init__(self, *a, **kw):
         super(GoogleNewsSpider, self).__init__(*a, **kw)
         self._scraped_news = None
+        self._log = open("log_spider", "a+")
+        self._log.write("\n-------------------------\n")
+        self._log.write("Abriendo log_spider...")
 
     def set_scraped_news(self, scraped_news):
         self._scraped_news = scraped_news
@@ -36,26 +40,25 @@ class GoogleNewsSpider(scrapy.Spider):
             # related
             for a in html_parser.find_all('a'):
                 link = a.attrs['href']
-                site_reg_exp = ".*" + "http://news.google.com/news/story?" + ".*"
+                site_reg_exp = ".*" + "http://news.google.com/news/story?" +\
+                               ".*"
                 match = re.search(site_reg_exp, link)
                 if match:
                     requests.append(
                         scrapy.Request(link,
-                                        callback=self._parse_main_document))
+                                       callback=self._parse_main_document))
                     break
 
         return requests
 
     def _parse_main_document(self, response):
         requests = []
-        # NOTE: extraigo los divs...
         divs = response.xpath("//div[@class=\"story-page-main\"]//div[@class=\"topic\"]//div[contains(@class, \"story\")]")
         for div in divs:
-            # TODO: ahora solo nos hace falta usar una expresion xpath
             links = div.xpath("h2[@class=\"title\"]//a/@href")
             if len(links) != 1:
                 self._log.write("Problemas intentando extraer los\
-                enlaces a las noticias en " + response.url  + ": \
+                enlaces a las noticias en " + response.url + ": \
                 h2 class = \"title\" no tiene la cantidad de enlaces\
                 esperada.\n")
                 break
@@ -63,22 +66,16 @@ class GoogleNewsSpider(scrapy.Spider):
             # {len(a) == 1}
             link = links[0].extract()
             req = common_utilities.generate_appr_request(link,
-                                                self.parse_article)
+                                                         self.parse_article)
             if req:
                 req.meta["original_link"] = link
                 # Arbitrary data, for debugging purposes
                 req.meta["Debug"] = None
                 # Obtain the id of the cluster.
                 html_parser = BeautifulSoup(div.extract(), 'html.parser')
-                # TODO: feo che...
                 div_parsed = html_parser.find_all("div")[0]
-                # TODO: solo nos haria falta BeautifulSoup para extraer el atributo
-                # cid (porque no se como hacerlo con xpath). Para lo demas basta
-                # con una expresion xpath...
                 req.meta["cid"] = None
                 for attr in div_parsed.attrs["class"]:
-                    # TODO: esto quizas deberia estar en otro
-                    # modulo
                     cluster_id_regexp = "cid-\d+"
                     match = re.search(cluster_id_regexp, attr)
                     if match:
@@ -86,7 +83,7 @@ class GoogleNewsSpider(scrapy.Spider):
                         break
 
                 if not req.meta["cid"]:
-                    self._log.write("No se pudo extraer el cid del articulo " +\
+                    self._log.write("No se pudo extraer el cid del articulo " +
                                     link + "\n")
                     req = None
                 requests.append(req)
@@ -127,6 +124,7 @@ class GoogleNewsSpider(scrapy.Spider):
                 item["reason_not_scraped"] = 2  # Problem with title's selector
         else:
             # {resolved_link in self._scraped_news}
-            item["reason_not_scraped"] = 3  # resolved_link already in self._scraped_news
+            # resolved_link already in self._scraped_news
+            item["reason_not_scraped"] = 3
 
         return item
