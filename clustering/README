@@ -1,8 +1,32 @@
 * presentacion.pdf contiene todos los detalles relativos al proyecto.
 
-* Para la ejecución de los tests pertinentes: ir a la carpeta "clustering" 
+* Para la ejecución de los tests pertinentes: ir a la carpeta "clustering"
 (dentro de la carpeta del mismo nombre, que contiene a todo el proyecto), escoger
 el corpus contra el cual testear (de entre news.data.219 y news.data.544) y nombrarlo
-news.data. Desde la mencionada carpeta "clustering" correr los tests con 
+news.data. Desde la mencionada carpeta "clustering" correr los tests con
 "nosetests -s tests/tests.py", para visualizar los resultados de los estadísticos
 estimados.
+
+* Estructura de la implementación:
+  _ Módulo bag_of_words_rep: contiene la implementación de todo lo relativo
+a la selección de "features" de un documento, el cálculo del estadístico
+TF.IDF, la representación de los documentos como vectores (todo esto en el
+módulo feature_selection.py) y el mantenimiento de una base de datos con las
+frecuencias de ocurrencias de cada término (archivo globIndx).
+
+  _ Módulo clustering: contiene la implementación del algoritmo de clustering
+(clase KMeansClusteringComponent), y abstracciones que representan a un documento
+a agrupar (clase Document), un cluster de tales documentos (clase Cluster) y
+un conjunto de tales clústeres (clase Clusters).
+
+  _ Módulo news_scraper: contiene la implementación de la araña web utilizada
+para construir el corpus de datos extraído de Google Noticias. Se puede ejecutar
+mediante el script "scrape.sh", el cual consulta y extrae las últimos noticias
+del sitio de Google Noticias, en intervalos de 5 minutos.
+
+  _ Módulo main: no forma parte del proyecto presentado, sino del trabajo a
+futuro mencionado en la presentación.
+
+  _ Módulo spider_utilities: procedimientos y estructuras de datos varias que
+son utilizadas tanto por la araña de news_scraper y la futura implementación
+del módulo "main".
